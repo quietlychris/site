@@ -1,0 +1,14 @@
+[global]
+workers = 2
+keep_alive = 5
+limits = { forms = 32768 }
+logging = "normal"
+
+[development]
+address = "127.0.0.1"
+port = 3030
+
+# I sure hope having this IP address here doesn't end up biting me in the rear
+[production]
+address = "157.245.179.26"
+port = 80

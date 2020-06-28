@@ -1,0 +1,5 @@
+### About this website
+
+This website is constructed as a static html site, which is being served by the Rocket framework, which is written in Rust. I like Rust, and figured this was a good excuse to learn a little bit more about its ecosystem in the web space. All the the writing that you might see here (including this page) is constructed of html code that is auto-generated from a Markdown file and given the site theme, thanks to the `markdown` crate. That's about it! It's not a very complicated site, only a little bit of html and css combined with a simple web server that requires less that 100 LoC. To the degree applicable, the source code for this site is licensed under GPLv3, although I'm not particularly sure why someone would want the not-so-great source code of a 
+
+I don't have any contact information on here, but if you're interested in reaching out, the easiest way to do so at the moment would be to check my GitHub commits for my contact information (link is in the menu). Otherwise, I may end up posting my CV on here at some point, which will also have that information.
