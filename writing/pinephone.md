@@ -1,4 +1,4 @@
-### Getting Started with the Pinephone UBports CE
+## Getting Started with the Pinephone UBports CE
 
 I recently received my Pinephone from Pine64, which is a low-cost open-hardware Linux-capable smartphone. 
 
