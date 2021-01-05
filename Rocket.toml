@@ -6,7 +6,7 @@ logging = "normal"
 
 [development]
 address = "127.0.0.1"
-port = 3030
+port = 8080
 
 # I sure hope having this IP address here doesn't end up biting me in the rear
 [production]

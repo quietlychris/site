@@ -5,6 +5,8 @@ use markdown::*;
 use std::fs::*;
 use std::io::prelude::*;
 use std::io::Error;
+use std::fs::OpenOptions;
+use chrono::prelude::*;
 
 use rocket_contrib::serve::StaticFiles;
 
@@ -17,6 +19,7 @@ fn main() {
 
     let mut handle = Easy::new();
     let mut big_count = 0;
+    let mut log = OpenOptions::new().write(true).create(true).open("log.txt").expect("Error building log file");
     loop {
         let mut process_id = 0;
         dbg!(big_count);
@@ -46,8 +49,12 @@ fn main() {
                 Ok(ok) => ok,
                 Err(e) => 0
             };
-            std::thread::sleep(std::time::Duration::from_millis(500));
-            println!("check on site status is: {:?}",check);
+            std::thread::sleep(std::time::Duration::from_secs(3));
+            if check == 0 {
+                let text = format!("received status {} at {}\n",check,Local::now());
+                log.write_all(text.as_bytes());
+            }
+            // println!("check on site status is: {:?}",check);
 
             if check == 0 {
                 break;
@@ -70,10 +77,10 @@ fn convert_writing_to_html() -> Result<(),Error> {
         let filename = file_in.to_str().unwrap();
         println!("filename is: {:?}",filename);
         if filename.contains(&"ethics") {
-            println!("filename contains \"ethics\"m skipping...");
+            println!("filename contains \"ethics\" skipping...");
             continue;
         } else if filename.contains(&"dmv") {
-            println!("filename contains \"dmv\"m skipping...");
+            println!("filename contains \"dmv\" skipping...");
             continue;
         }
         
