@@ -38,6 +38,12 @@ const HTML_WRITING_PREFIX: &str = "<!DOCTYPE html>
 </head>
 <div class=\"container\">
 <body>
+<ul>
+ <li><a href=\"/index.html\">Home</a></li>
+ <li><a href=\"https://github.com/quietlychris\">GitHub</a></li>
+ <li><a href=\"/writing.html\">Writing</a></li>
+ <li><a href=\"/cmoran.pdf\">Resumé</a></li>
+</ul>
 ";
 
 const HTML_WRITING_SUFFIX: &str = "</body>

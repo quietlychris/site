@@ -32,13 +32,19 @@ h2 {
 h3 {
     color: black;
     font-family: ubuntu;
-    font-size: 125%;
+    font-size: 110%;
+}
+h4 {
+    color: black;
+    font-family: ubuntu;
+    font-size: 75%;
 }
 p {
     color: black;
     font-family: ubuntu;
     font-size: 100%;
 }
+
 ul {
   display: inline;
   list-style-type: none;
