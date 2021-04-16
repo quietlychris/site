@@ -35,6 +35,7 @@ const HTML_WRITING_PREFIX: &str = "<!DOCTYPE html>
 <html>
 <head>
   <link rel=\"stylesheet\" href=\"../styles.css\">
+  <script async defer data-domain=\"cmoran.xyz\" src=\"https://plausible.io/js/plausible.js\"></script>
 </head>
 <div class=\"container\">
 <body>
