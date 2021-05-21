@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<div class="container">
+<head>
+  <link rel="stylesheet" href="styles.css">
+  <script async defer data-domain="cmoran.xyz" src="https://plausible.io/js/plausible.js"></script>
+
+  <title>Test Map</title>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
+
+</head>
+<body>
+    <ul>
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="https://github.com/quietlychris">GitHub</a></li>
+        <li><a href="/writing.html">Writing</a></li>
+        <li><a href="/cmoran.pdf">Resumé</a></li>
+    </ul>
+    <h1> Test Map</h1>
+    <p>Or, check out a WebAssembly-based <a href="/wasm/basic/index.html">version</a></p>
+
+    <div id="mapid" style="width: 90%; height: 400px;"></div>
+    <script>
+    
+        var map = L.map('mapid').setView([34.418383, -119.849901], 14);
+    
+        var OpenStreetMap_France = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            attribution: '&copy; OpenStreetMap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        OpenStreetMap_France.addTo(map);
+ 
+        // GeoJson coordinates are apparently in (lon, lat)
+        var myLines = [{
+            "type": "LineString",
+            "coordinates": [[-119.847004, 34.408128], [-119.847004, 34.407228]]
+        }];
+
+        var myStyle = {
+            "color": "#ff7800",
+            "weight": 10,
+            "opacity": 0.9
+        };
+
+        L.geoJSON(myLines, {
+            style: myStyle
+        }).addTo(map);
+
+
+      var popup = L.popup();
+    
+      function onMapClick(e) {
+          popup
+              .setLatLng(e.latlng)
+              .setContent("You clicked the map at " + e.latlng.toString())
+              .openOn(map);
+      }
+    
+      map.on('click', onMapClick);
+  
+
+        
+    </script>
+
+    <h1>
+        Read an image file
+    </h1>
+    <input type="file" id="file-selector">
+    <p id="status"></p>
+    <div>
+        <img id="output">
+    </div>
+
+        <script>
+        const status = document.getElementById('status');
+            const output = document.getElementById('output');
+            if (window.FileList && window.File && window.FileReader) {
+              document.getElementById('file-selector').addEventListener('change', event => {
+                output.src = '';
+                status.textContent = '';
+                const file = event.target.files[0];
+                if (!file.type) {
+                  status.textContent = 'Error: The File.type property does not appear to be supported on this browser.';
+                  return;
+                }
+                if (!file.type.match('image.*')) {
+                  status.textContent = 'Error: The selected file does not appear to be an image.'
+                  return;
+                }
+                const reader = new FileReader();
+                reader.addEventListener('load', event => {
+                  output.src = event.target.result;
+                });
+                reader.readAsDataURL(file);
+              }); 
+            }
+          </script>
+
+</body>
+</div>
+</html>

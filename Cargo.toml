@@ -8,6 +8,7 @@ license = "AGPL-3.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.4.7"
-rocket_contrib = "0.4.7"
+rocket = "0.4.8"
+rocket_contrib = "0.4.8"
 markdown = "0.3"
+
