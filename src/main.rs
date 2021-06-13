@@ -1,33 +1,37 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#[macro_use] extern crate rocket;
-
 use markdown::*;
 use std::fs::*;
 use std::io::prelude::*;
 use std::io::Error;
 
-use rocket_contrib::serve::StaticFiles;
+use rocket::fs::{relative, FileServer};
 
-#[get("/wasm_map.html")]
-fn wasm_map() -> String {
-    format!("Hello, world")
-}
-
-fn main() {
-    convert_writing_to_html().expect("An error occurred while converting markdown files to html");
+#[rocket::launch]
+fn site() -> _ {
+    // env_logger::init();
+    convert_writing_to_html("static","writing").expect("An error occurred while converting markdown files to html");
     compile_wasm().expect("There was an error compiling the wasm pages");
-    rocket::ignite()
-        .mount("/", StaticFiles::from("static_pages"))
-        .mount("/wasm", StaticFiles::from("wasm_pages").rank(2))
-        .launch();
+    
+    let use_wasm = true;
+
+    let site = match use_wasm {
+        true => {
+            rocket::build().mount("/", FileServer::from(relative!("static")).rank(0) )
+                .mount("/wasm", FileServer::from(relative!("wasm")).rank(1) )
+        },
+        false => {
+            rocket::build().mount("/", FileServer::from(relative!("static")))
+        }
+    };
+    
+    site
 }
 
-fn convert_writing_to_html() -> Result<(), Error> {
-    let paths = read_dir("writing/").unwrap();
-    println!("paths: {:?}", paths);
+fn convert_writing_to_html(base_dir: &str, writing_dir: &str) -> Result<(), Error> {
+    let paths = read_dir(writing_dir).unwrap();
+    println!("- Converting markdown files in {:?} to html:", paths);
     for path in paths {
         let file_in = path.unwrap().path();
-        println!("The file is {}", file_in.clone().display());
+        // println!("The file is {}", file_in.clone().display());
         let html_text = file_to_html(&file_in)
             .expect(format!("Couldn't convert {} to html", file_in.clone().display()).as_str());
 
@@ -41,8 +45,9 @@ fn convert_writing_to_html() -> Result<(), Error> {
             .split(".")
             .collect::<Vec<&str>>();
 
-        println!("the filename prefix is: {:?}", filename[0]);
-        let file_out_path = "./static_pages/writing/".to_string() + filename[0] + ".html";
+        // println!("the filename prefix is: {:?}", filename[0]);
+        let file_out_path = base_dir.to_owned() + "/" + &writing_dir.to_owned() + "/" + filename[0] + ".html";
+        println!("    - Writing {:?} to \"{}\"",file_in, file_out_path);
         let mut html_file = File::create(file_out_path)?;
 
         html_file.write_all(HTML_WRITING_PREFIX.as_bytes())?;
@@ -57,23 +62,30 @@ fn compile_wasm() -> Result<(), Box<dyn std::error::Error>> {
     use std::path::Path;
     use std::process::Command;
 
-    let wasm = Path::new("./wasm_pages/basic/");
+    let wasm = Path::new("./wasm/basic/");
     assert!(env::set_current_dir(&wasm).is_ok());
-    println!("Successfully changed working directory to {}!", wasm.display());
+    
+    //println!(
+    //    "Successfully changed working directory to {}!",
+    //    wasm.display()
+    //);
 
     let compilation = Command::new("wasm-pack")
         .arg("build")
         .arg("--target")
         .arg("web")
         .output()
-        .expect("failed to execute process");
-    
+        .expect("failed to execute wasm-pack build process");
+
     compilation.stdout; //.expect("Failed to compile");
 
     let home = Path::new("../..");
     assert!(env::set_current_dir(&home).is_ok());
-    println!("Successfully changed working directory to {}!", home.display());
-
+    
+    //println!(
+    //   "Successfully changed working directory to {}!",
+    //  home.display()
+    //);
 
     Ok(())
 }

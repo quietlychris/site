@@ -2,7 +2,7 @@
 workers = 2
 keep_alive = 5
 limits = { forms = 32768 }
-logging = "normal"
+logging = "debug"
 
 [development]
 address = "127.0.0.1"
@@ -12,3 +12,4 @@ port = 3030
 [production]
 address = "157.245.179.26"
 port = 80
+ 
