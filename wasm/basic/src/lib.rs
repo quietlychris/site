@@ -34,9 +34,17 @@ pub fn main() -> Result<(), JsValue> {
     console::log_1(&"Running Leaflet example code in Rust.".into());
 
     let map = Map::new("map", &JsValue::NULL);
-    map.setView(&LatLng::new(34.417083, -119.85018), 14.0);
+    map.setView(&LatLng::new(34.409081, -119.847347), 16.0);
 
     add_tile_layer(&map);
+
+    let circle = Circle::new_with_options(
+        &LatLng::new(34.409081, -119.847347),
+        &JsValue::from_serde(&CircleOptions { radius: 40.0 })
+            .expect("Unable to serialize circle options"),
+    );
+    circle.addTo(&map);
+
     // add_polyline(&map);
     // add_polygon(&map);
     // add_rectangle(&map);
@@ -96,13 +104,13 @@ fn add_rectangle(map: &Map) {
 }
 
 fn add_circle(map: &Map) {
-    Circle::new(&LatLng::new(63.25, 13.25)).addTo(&map);
+    Circle::new(&LatLng::new(34.417083, -119.85018)).addTo(&map);
 }
 
 fn add_circle_with_options(map: &Map) {
     Circle::new_with_options(
-        &LatLng::new(63.25, 13.35),
-        &JsValue::from_serde(&CircleOptions { radius: 4000.0 })
+        &LatLng::new(34.417083, -119.85018),
+        &JsValue::from_serde(&CircleOptions { radius: 40.0 })
             .expect("Unable to serialize circle options"),
     )
     .addTo(&map);

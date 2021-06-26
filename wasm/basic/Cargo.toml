@@ -1,8 +1,8 @@
 [package]
-name = "leaflet-rs-example"
+name = "rust_leaflet_map"
 version = "0.1.0"
-authors = ["The leaflet-rs Developers"]
-license = "MIT/Apache-2.0"
+authors = ["Chris M"]
+license = "MIT"
 description = "An example using leaflet-rs"
 homepage = "https://github.com/kartevonmorgen/leaflet-rs"
 repository = "https://github.com/kartevonmorgen/leaflet-rs"
@@ -13,9 +13,11 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-#leaflet = { path = "../.." }
-# Your project would instead do:
 leaflet = "0.1"
+
+geojson = "0.22"
+serde_json = "1.0"
+geo = "0.18"
 
 gloo-events = "0.1"
 js-sys = "0.3"
