@@ -4,12 +4,12 @@ keep_alive = 5
 limits = { forms = 32768 }
 logging = "debug"
 
-[development]
+[debug]
 address = "127.0.0.1"
-port = 3030
+port = 8000
 
 # I sure hope having this IP address here doesn't end up biting me in the rear
-[production]
+[release]
 address = "157.245.179.26"
 port = 80
  

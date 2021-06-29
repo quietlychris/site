@@ -8,9 +8,12 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{console, window, Element, HtmlAnchorElement};
 
+// These Options structs must have the same wording as a
 #[derive(Serialize, Deserialize)]
 struct CircleOptions {
+    color: String,
     radius: f32,
+    fillOpacity: f32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -40,8 +43,12 @@ pub fn main() -> Result<(), JsValue> {
 
     let circle = Circle::new_with_options(
         &LatLng::new(34.409081, -119.847347),
-        &JsValue::from_serde(&CircleOptions { radius: 40.0 })
-            .expect("Unable to serialize circle options"),
+        &JsValue::from_serde(&CircleOptions {
+            color: "red".into(),
+            radius: 40.0,
+            fillOpacity: 1.0,
+        })
+        .expect("Unable to serialize circle options"),
     );
     circle.addTo(&map);
 
@@ -107,6 +114,7 @@ fn add_circle(map: &Map) {
     Circle::new(&LatLng::new(34.417083, -119.85018)).addTo(&map);
 }
 
+/*
 fn add_circle_with_options(map: &Map) {
     Circle::new_with_options(
         &LatLng::new(34.417083, -119.85018),
@@ -115,6 +123,7 @@ fn add_circle_with_options(map: &Map) {
     )
     .addTo(&map);
 }
+*/
 
 fn add_control(map: &Map) {
     let props = JsValue::from_serde(&ControlProps {
