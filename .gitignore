@@ -3,3 +3,5 @@ Cargo.lock
 log*.txt
 pages/writing/
 *phillips*
+sandbox/wasm/*
+*resume*

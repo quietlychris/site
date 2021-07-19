@@ -2,18 +2,13 @@ use markdown::*;
 use std::fs::*;
 use std::io::prelude::*;
 use std::io::Error;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use rocket::fs::{relative, FileServer, NamedFile};
 
-#[rocket::get("/wasm/<path..>")]
-pub async fn wasm(path: PathBuf) -> Option<NamedFile> {
-    let mut path = Path::new(relative!("wasm")).join(path);
-    if path.is_dir() {
-        path.push("index.html");
-    }
-    println!("Opening: {:?}", &path);
-
+#[rocket::get("/alpine.html")]
+pub async fn alpine() -> Option<NamedFile> {
+    let path = Path::new(relative!("sandbox")).join("alpine.html");
     NamedFile::open(path).await.ok()
 }
 
@@ -28,7 +23,8 @@ fn site() -> _ {
 
     let site = match use_wasm {
         true => rocket::build()
-            .mount("/", rocket::routes![wasm])
+            .mount("/", rocket::routes![alpine])
+            .mount("/sandbox", FileServer::from(relative!("sandbox")).rank(0))
             .mount("/", FileServer::from(relative!("static"))),
         false => rocket::build().mount("/", FileServer::from(relative!("static"))),
     };
@@ -72,7 +68,7 @@ fn compile_wasm() -> Result<(), Box<dyn std::error::Error>> {
     use std::env;
     use std::process::Command;
 
-    let wasm = Path::new("./wasm/basic/");
+    let wasm = Path::new("./sandbox/wasm/map/");
     assert!(env::set_current_dir(&wasm).is_ok());
 
     //println!(
@@ -89,7 +85,7 @@ fn compile_wasm() -> Result<(), Box<dyn std::error::Error>> {
 
     compilation.stdout; //.expect("Failed to compile");
 
-    let home = Path::new("../..");
+    let home = Path::new("../../..");
     assert!(env::set_current_dir(&home).is_ok());
 
     //println!(
@@ -113,7 +109,8 @@ const HTML_WRITING_PREFIX: &str = "<!DOCTYPE html>
  <li><a href=\"https://github.com/quietlychris\">GitHub</a></li>
  <li><a href=\"/writing.html\">Writing</a></li>
  <li><a href=\"/cmoran.pdf\">Resumé</a></li>
-</ul>
+ <li><a href=\"sandbox\">Sandbox</a></li>
+ </ul>
 ";
 
 const HTML_WRITING_SUFFIX: &str = "</body>
