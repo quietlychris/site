@@ -1,0 +1,38 @@
+<html>
+<head>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+    <h1 x-data="{ message: 'AlpineJS in the sandbox' }" x-text="message"></h1>
+    <div x-data="{ count: 0 }">
+      <button x-on:click="count++">Increment</button>
+      <button x-on:click="count--">Decrement</button>
+
+  
+      <span x-text="count"></span>
+  </div>
+  <div x-data="imageViewer()">
+    <div class="mb-2">
+      <!-- Show the image -->
+      <template x-if="imageUrl">
+        <img :src="imageUrl" 
+             class="object-cover rounded border border-gray-200" 
+             style="width: 100px; height: 100px;"
+        >
+      </template>
+      
+      <!-- Show the gray box when image is not available -->
+      <template x-if="!imageUrl">
+        <div 
+             class="border rounded border-gray-200 bg-gray-100" 
+             style="width: 100px; height: 100px;"
+        ></div>
+      </template>
+      
+      <!-- Image file selector -->
+      <input class="mt-2" type="file" accept="image/*">
+      
+    </div>
+  </div>
+</body>
+</html>

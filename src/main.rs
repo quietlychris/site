@@ -1,78 +1,99 @@
+#[macro_use]
+extern crate rocket;
+use rocket::fs::{FileServer, NamedFile};
+use rocket::response::content;
+
 use markdown::*;
-use std::fs::*;
-use std::io::prelude::*;
-use std::io::Error;
 use std::path::{Path, PathBuf};
 
-use rocket::fs::{relative, FileServer, NamedFile};
-
-#[rocket::get("/wasm/<path..>")]
-pub async fn wasm(path: PathBuf) -> Option<NamedFile> {
-    let mut path = Path::new(relative!("wasm")).join(path);
-    if path.is_dir() {
-        path.push("index.html");
-    }
-    println!("Opening: {:?}", &path);
-
-    NamedFile::open(path).await.ok()
-}
-
+// Expands to async main function
 #[rocket::launch]
 fn site() -> _ {
     // env_logger::init();
-    convert_writing_to_html("static", "writing")
-        .expect("An error occurred while converting markdown files to html");
-    compile_wasm().expect("There was an error compiling the wasm pages");
 
-    let use_wasm = true;
+    // compile_wasm().expect("There was an error compiling the wasm pages");
 
-    let site = match use_wasm {
-        true => rocket::build()
-            .mount("/", rocket::routes![wasm])
-            .mount("/", FileServer::from(relative!("static"))),
-        false => rocket::build().mount("/", FileServer::from(relative!("static"))),
+    rocket::build()
+        .mount("/", routes![home, styles, index_pages, resume, writing])
+        .mount("/data", routes![dataset_index_pages, dataset_content])
+        .mount("/sandbox", FileServer::from("sandbox")) // Experimental, don't care much about formatting
+}
+
+#[get("/")] // <- route attribute
+fn home() -> content::Html<String> {
+    let page_name = "./assets/index.html".to_string();
+    let content = match std::fs::read_to_string(&page_name) {
+        Ok(text) => text,
+        Err(e) => format!("Error: {:?} for {}", e, &page_name),
     };
-
-    site
+    format_content(content)
 }
 
-fn convert_writing_to_html(base_dir: &str, writing_dir: &str) -> Result<(), Error> {
-    let paths = read_dir(writing_dir).unwrap();
-    println!("- Converting markdown files in {:?} to html:", paths);
-    for path in paths {
-        let file_in = path.unwrap().path();
-        // println!("The file is {}", file_in.clone().display());
-        let html_text = file_to_html(&file_in)
-            .expect(format!("Couldn't convert {} to html", file_in.clone().display()).as_str());
+#[get("/styles.css")]
+fn styles() -> content::Css<String> {
+    let page_name = "./assets/styles.css".to_string();
+    let content = match std::fs::read_to_string(&page_name) {
+        Ok(text) => text,
+        Err(e) => format!("Error: {:?} for {}", e, &page_name),
+    };
+    content::Css(content)
+}
 
-        let filename = file_in
-            .to_str()
-            .unwrap()
-            .split("/")
-            .collect::<Vec<&str>>()
-            .last()
-            .unwrap()
-            .split(".")
-            .collect::<Vec<&str>>();
+#[get("/<index_page>")]
+fn index_pages(index_page: &str) -> content::Html<String> {
+    let path = Path::new(index_page).join("index.html");
+    let content = match std::fs::read_to_string(&path) {
+        Ok(text) => text,
+        Err(e) => format!("Error: {:?} for {:?}", e, &path),
+    };
+    format_content(content)
+}
 
-        // println!("the filename prefix is: {:?}", filename[0]);
-        let file_out_path =
-            base_dir.to_owned() + "/" + &writing_dir.to_owned() + "/" + filename[0] + ".html";
-        println!("    - Writing {:?} to \"{}\"", file_in, file_out_path);
-        let mut html_file = File::create(file_out_path)?;
+#[get("/cmoran.pdf")]
+async fn resume() -> Option<NamedFile> {
+    NamedFile::open(Path::new("assets").join("cmoran.pdf"))
+        .await
+        .ok()
+}
 
-        html_file.write_all(HTML_WRITING_PREFIX.as_bytes())?;
-        html_file.write_all(html_text.as_bytes())?;
-        html_file.write_all(HTML_WRITING_SUFFIX.as_bytes())?;
+#[get("/writing/<page>")]
+fn writing(page: &str) -> content::Html<String> {
+    let path = Path::new("writing").join(page).with_extension("md");
+    // dbg!(&path);
+
+    let content = match file_to_html(&path) {
+        Ok(text) => text,
+        Err(e) => format!("\nError converting {:?} to html: {:?}", path, e),
+    };
+    format_content(content)
+}
+
+#[get("/<category>")]
+async fn dataset_index_pages(category: PathBuf) -> content::Html<String> {
+    let mut path = Path::new("data").join(category);
+    if path.is_dir() {
+        path.push("index.html");
     }
-    Ok(())
+    dbg!(&path);
+    let content = match std::fs::read_to_string(&path) {
+        Ok(text) => text,
+        Err(e) => format!("Error: {:?} for {:?}", e, &path),
+    };
+    format_content(content)
 }
 
+#[get("/<category>/<payload..>", rank = 2)]
+async fn dataset_content(category: PathBuf, payload: PathBuf) -> Option<NamedFile> {
+    let path = Path::new("data").join(category).join(payload);
+    NamedFile::open(path).await.ok()
+}
+
+/// Experimental function for compiling the Leaflet WebAssembly map prior to serving the site
 fn compile_wasm() -> Result<(), Box<dyn std::error::Error>> {
     use std::env;
     use std::process::Command;
 
-    let wasm = Path::new("./wasm/basic/");
+    let wasm = Path::new("./sandbox/wasm/map/");
     assert!(env::set_current_dir(&wasm).is_ok());
 
     //println!(
@@ -89,7 +110,7 @@ fn compile_wasm() -> Result<(), Box<dyn std::error::Error>> {
 
     compilation.stdout; //.expect("Failed to compile");
 
-    let home = Path::new("../..");
+    let home = Path::new("../../..");
     assert!(env::set_current_dir(&home).is_ok());
 
     //println!(
@@ -100,23 +121,16 @@ fn compile_wasm() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-const HTML_WRITING_PREFIX: &str = "<!DOCTYPE html>
-<html>
-<head>
-  <link rel=\"stylesheet\" href=\"../styles.css\">
-  <script async defer data-domain=\"cmoran.xyz\" src=\"https://plausible.io/js/plausible.js\"></script>
-</head>
-<div class=\"container\">
-<body>
-<ul>
- <li><a href=\"/index.html\">Home</a></li>
- <li><a href=\"https://github.com/quietlychris\">GitHub</a></li>
- <li><a href=\"/writing.html\">Writing</a></li>
- <li><a href=\"/cmoran.pdf\">Resumé</a></li>
-</ul>
-";
-
-const HTML_WRITING_SUFFIX: &str = "</body>
-    </div>
-    </html>
-";
+/// Apply site-wide formatting rules to a raw html page
+fn format_content(content: String) -> content::Html<String> {
+    let prefix = match std::fs::read_to_string("assets/WRITING_PREFIX.html") {
+        Ok(text) => text,
+        Err(e) => format!("Error getting html formatting PREFIX: {:?}", e),
+    };
+    let suffix = match std::fs::read_to_string("assets/WRITING_SUFFIX.html") {
+        Ok(text) => text,
+        Err(e) => format!("Error getting html formatting SUFFIX: {:?}", e),
+    };
+    let page = prefix + &content + &suffix;
+    content::Html(page)
+}

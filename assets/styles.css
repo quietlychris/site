@@ -22,22 +22,29 @@ body {
 h1 {
     color: black;
     font-family: ubuntu;
-    font-size: 200%;
+    font-size: 210%;
 }
 h2 {
     color: black;
     font-family: ubuntu;
-    font-size: 150%;
+    font-size: 135%;
 }
 h3 {
     color: black;
     font-family: ubuntu;
     font-size: 110%;
+    padding-left: 10%;
 }
 h4 {
     color: black;
     font-family: ubuntu;
-    font-size: 75%;
+    font-size: 100%;
+    padding-left: 10%;
+}
+h5 {
+    color: black;
+    font-family: ubuntu;
+    font-size: 90%;
 }
 p {
     color: black;
@@ -70,4 +77,13 @@ a {
     text-decoration: none;
     color: black;
     font-weight: bold;
+}
+
+.tab {
+    padding-left: 10%;
+}
+
+.tab-1 {
+    padding-left: 3%;
+    padding-bottom: 1%;
 }
