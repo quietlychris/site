@@ -5,3 +5,7 @@ pages/writing/
 *phillips*
 sandbox/wasm/*
 *resume*
+sync.sh
+*.gz
+*.png
+*.pdf
