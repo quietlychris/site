@@ -3,7 +3,8 @@ extern crate rocket;
 use rocket::fs::{FileServer, NamedFile};
 use rocket::response::content;
 
-use markdown::*;
+use comrak::{markdown_to_html_with_plugins, ComrakOptions, ComrakPlugins};
+use comrak::plugins::syntect::SyntectAdapter;
 use std::path::{Path, PathBuf};
 
 // Expands to async main function
@@ -19,6 +20,26 @@ fn site() -> _ {
         .mount("/sandbox", FileServer::from("sandbox")) // Experimental, don't care much about formatting
 }
 
+#[get("/<category>/<payload..>", rank = 2)]
+async fn dataset_content(category: PathBuf, payload: PathBuf) -> Option<NamedFile> {
+    let path = Path::new("data").join(category).join(payload);
+    NamedFile::open(path).await.ok()
+}
+
+#[get("/<category>")]
+async fn dataset_index_pages(category: PathBuf) -> content::Html<String> {
+    let mut path = Path::new("data").join(category);
+    if path.is_dir() {
+        path.push("index.html");
+    }
+    dbg!(&path);
+    let content = match std::fs::read_to_string(&path) {
+        Ok(text) => text,
+        Err(e) => format!("Error: {:?} for {:?}", e, &path),
+    };
+    format_content(content)
+}
+
 #[get("/")] // <- route attribute
 fn home() -> content::Html<String> {
     let page_name = "./assets/index.html".to_string();
@@ -27,16 +48,6 @@ fn home() -> content::Html<String> {
         Err(e) => format!("Error: {:?} for {}", e, &page_name),
     };
     format_content(content)
-}
-
-#[get("/styles.css")]
-fn styles() -> content::Css<String> {
-    let page_name = "./assets/styles.css".to_string();
-    let content = match std::fs::read_to_string(&page_name) {
-        Ok(text) => text,
-        Err(e) => format!("Error: {:?} for {}", e, &page_name),
-    };
-    content::Css(content)
 }
 
 #[get("/<index_page>")]
@@ -56,36 +67,33 @@ async fn resume() -> Option<NamedFile> {
         .ok()
 }
 
+#[get("/styles.css")]
+fn styles() -> content::Css<String> {
+    let page_name = "./assets/styles.css".to_string();
+    let content = match std::fs::read_to_string(&page_name) {
+        Ok(text) => text,
+        Err(e) => format!("Error: {:?} for {}", e, &page_name),
+    };
+    content::Css(content)
+}
+
 #[get("/writing/<page>")]
 fn writing(page: &str) -> content::Html<String> {
     let path = Path::new("writing").join(page).with_extension("md");
     // dbg!(&path);
+    let mut options = ComrakOptions::default();
+    options.render.unsafe_ = true;
+    options.render.github_pre_lang = true;
 
-    let content = match file_to_html(&path) {
-        Ok(text) => text,
+    let mut plugins = ComrakPlugins::default();
+    let adapter = SyntectAdapter::new("base16-mocha.dark");
+    plugins.render.codefence_syntax_highlighter = Some(&adapter);
+
+    let content = match std::fs::read_to_string(&path) {
+        Ok(text) => markdown_to_html_with_plugins(&text, &options, &plugins),
         Err(e) => format!("\nError converting {:?} to html: {:?}", path, e),
     };
     format_content(content)
-}
-
-#[get("/<category>")]
-async fn dataset_index_pages(category: PathBuf) -> content::Html<String> {
-    let mut path = Path::new("data").join(category);
-    if path.is_dir() {
-        path.push("index.html");
-    }
-    dbg!(&path);
-    let content = match std::fs::read_to_string(&path) {
-        Ok(text) => text,
-        Err(e) => format!("Error: {:?} for {:?}", e, &path),
-    };
-    format_content(content)
-}
-
-#[get("/<category>/<payload..>", rank = 2)]
-async fn dataset_content(category: PathBuf, payload: PathBuf) -> Option<NamedFile> {
-    let path = Path::new("data").join(category).join(payload);
-    NamedFile::open(path).await.ok()
 }
 
 /// Experimental function for compiling the Leaflet WebAssembly map prior to serving the site

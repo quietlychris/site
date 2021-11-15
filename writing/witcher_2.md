@@ -11,5 +11,4 @@ My set-up isn't anything special in this case: I've got an 8-thread processor wi
 
 As a result, this was really my first experience with gaming, with gaming on Linux, and with basically this entire concept. It's certainly interested, and since I've got more time on my hands than before with quarantine still functionally ongoing, I'm excited to dig into the whole concept a little bit more. I've read the Witcher books, and got a kick out of the Netflix series, so being able to play through at least one of the games as well has been a lot of fun.  In any case, I just downloaded *Witcher 3: Wild Hunt*, so I guess we'll see if that manages to work on Steam as well. Also, if you're running Linux and looking for a fun (at least, in my humble opinion) game to play, take a look a downloading the Witcher 2, and see if that fits the bill![^1] 
 
-[^1]: Note: just figured I'd toss this in there: this is an unpaid, un-anything-but-my-own-take-on-a-thing-I-happened-to-do piece of writing. 
 

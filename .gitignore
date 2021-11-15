@@ -8,4 +8,6 @@ sandbox/wasm/*
 sync.sh
 *.gz
 *.png
+*.jpg
+*.JPG
 *.pdf

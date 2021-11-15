@@ -79,6 +79,14 @@ a {
     font-weight: bold;
 }
 
+.fig-title {
+    color: black;
+    font-family: ubuntu;
+    font-size: 90%;
+    text-align: center;
+    font-weight: bold;
+}
+
 .tab {
     padding-left: 10%;
 }
@@ -87,3 +95,7 @@ a {
     padding-left: 3%;
     padding-bottom: 1%;
 }
+
+
+
+img[alt=drawing] { width: 200px; }
