@@ -5,11 +5,11 @@
 
 <ul>
     <div class="tab"><a href="adventures_in_photogrammetry#Flight"/>Flight</a></div>
-    <div class="tab"><a href="adventures_in_photogrammetry#Photogrammetry"/>Photogrammetry</a></div>
-    <div class="tab"><a href="adventures_in_photogrammetry#HowNotTo"/>How (not to) segment an image</a></div>
-    <div class="tab"><a href="adventures_in_photogrammetry#DBSCAN"/>Image segmentation with <code>linfa</code> and DBSCAN</a></div>
+    <div class="tab"><a href="adventures_in_photogrammetry#Photogrammetry"/>A Brief Introduction to Photogrammetry</a></div>
+    <div class="tab"><a href="adventures_in_photogrammetry#HowNotTo"/>How (Not To) Segment An Image</a></div>
+    <div class="tab"><a href="adventures_in_photogrammetry#DBSCAN"/>Image Segmentation with <code>linfa</code> and DBSCAN</a></div>
     <div class="tab"><a href="adventures_in_photogrammetry#Results"/>Results</a></div>
-    <div class="tab"><a href="adventures_in_photogrammetry#FutureWork"/>Future Work</a></div>
+    <div class="tab"><a href="adventures_in_photogrammetry#NextSteps"/>Next Steps</a></div>
 </ul>
 
 --- 
@@ -44,7 +44,7 @@ In order to accomplish this, I started by laying out a silver tarp on a soccer f
 <div class = "fig-title">Tarp image taken at 9.9 m altitude</div>
 
 <!--Photogrammetry section -->
-<h3 id="Photogrammetry">Introduction to Photogrammetry Methods</h3>
+<h3 id="Photogrammetry">A Brief Introduction to Photogrammetry</h3>
 
 At a high level, photogrammetry is based on angles, distances, and right triangles. Below is a(n admittedly rough) sketch of how this works. 
 
@@ -90,7 +90,7 @@ But how much area does our image cover? That depends mainly on two things: the h
 ```
 
 <!--Photogrammetry section -->
-<h3 id="HowNotTo">How (not to) segment an image</h3>
+<h3 id="HowNotTo">How (Not To) Segment An Image</h3>
 
 At this point, we've got an estimate for the area covered by each pixel; the next step is to try to calculate the number of pixels that are assigned to the the tarp in the image. Once we have that, we can simply multiply the two together:
 
@@ -103,7 +103,7 @@ There are a few ways that we could do this; to start, it's pretty easy to open u
 <center><img src="/data/drone/tarp_long_edge.png" alt="tarp_gimp" width="60%"/></center>
 <div class = "fig-title">Measuring the tarp in GIMP</div>
 
-We could also use something like a color filter. Each pixel in the image is represented as an `image::Rgba([r, g, b, α])` data structure. By iterating over each pixel, we could check to see if it matches a set of rules that we provide that would prefer the tarp's pixels over all others. 
+We could also use something like a color filter. Each pixel in the image is represented as an `image::Rgba([r, g, b, α])` data structure. By iterating over each one, we could check to see if it matches a set of rules that we provide that would prefer the tarp's pixels over all others. 
 
 For example, we know that the tarp is silver, while the rest of the field is green. As a result, the ratio of Green to Blue should be much higher on the grass than the tarp. So we, could create a function like
 
@@ -119,7 +119,7 @@ For example, we know that the tarp is silver, while the rest of the field is gre
       }
   }
 ```
-The problem with simple color filters is that they tend not to end up being so simple. A single rule rarely takes care of everything, so you start adding conditionals, which are then based on things like lighting or location, so you add more conditionals, but then some rules conflict with others so you add more conditionals to resolve those, and so on forever until you give up and go live in a monastery to contemplating the universe's fickle nature. Ahem. 
+The problem with simple color filters is that they tend not to end up being so simple. A single rule rarely takes care of everything, so you start adding conditionals, which are then based on things like lighting or location, so you add more conditionals, but then some rules conflict with others so you add more conditionals to resolve those, and so on forever until you give up and go live in a monastery for a while to contemplate the infinite possibilities created by the universe's fickle nature. Ahem. 
 
 Anyway, while this might work for a one-off, it's an approach that rarely ends up being more flexible than just coloring in the image yourself and going from there. 
 
@@ -128,13 +128,13 @@ Speaking on coloring in, if we knew we were going to be doing a ton of this kind
 However, unless you already have a pipeline set up for it, annotating data by hand may not be worth it for only a few pictures, at which point you'll either need to rent a GPU from a cloud provider or spend the money on one yourself in order to have enough room to fit an effective training network in anyway. 
 
 <!--Image segmenation with DBSCAN -->
-<h3 id="DBSCAN">Image segmentation with <code>linfa</code> and DBSCAN</h3>
+<h3 id="DBSCAN">Image Segmentation with <code>linfa</code> and DBSCAN</h3>
 
 In this case, the core task that we're working on is separating out a localized group of pixels that display a significant color difference over the other pixels in the image. 
 
-This just happens the is the sort of sweet spot where a clustering algorithm might come in handy. Two of the most common clustering algorithms are KMeans and DBSCAN. I'm not going to compare and contrast them here, but if you're interested, I wrote a couple chapters about them in the Rust-ML [Book](https://rust-ml.github.io/book/3_kmeans.html). I ended up settling on DBSCAN; it's a little more computationally intensive, but it's good at ignoring outliers by default and generally does a nice job at dealing with not-so-structured data, both of which are assets when dealing with real-world image data. 
+This just happens the is the sort of sweet spot where a clustering algorithm might come in handy. One of the most of common of these is DBSCAN, or the "Density-Based Spatial Clustering with Noise." While I'm not going to explain how it works here, it functionally does a really good job at automatically identifying groups of related data, while also filtering out data that is unrelated to any of those groups. In addition, DBSCAN often does a nice job while dealing with not-so-structured data, which is an asset when dealing with real-world image data. If you are interested in a more in-depth exploration, feel free to take a look at the chapter I wrote about it for the Rust-ML Book [here](https://rust-ml.github.io/book/4_dbscan.html).  
 
-The first thing we'll do is open the image file with the [`image`](https://docs.rs/image/) library, then resize it. Resizing isn't necessary, but is often practical in order to reduce iteration time. I'd recommend trying a <math>0.2</math> scaling factor to start. 
+The first thing we'll do is open the image file with the [`image`](https://docs.rs/image/) library, then resize the image. Resizing isn't necessary, but is often practical in order to reduce iteration time. I'd recommend trying a <math>0.2</math> scaling factor to start. 
 
 ```rust 
     let img = image::open(path)?; 
@@ -151,7 +151,7 @@ The first thing we'll do is open the image file with the [`image`](https://docs.
 ```
 Once the image is resized, we'll want to convert it into a form that can be easily processed by [`linfa`](https://github.com/rust-ml/linfa), a Rust machine learning library akin to scikit-learn. In this case, we'll flatten it out, where each pixel is a new row in the form `[x, y, r, g, b]`, to create an `ndarray::Array2<f64>` <math>(w*h) x 5</math> array. 
 
-From there, we can call the `linfa-clustering::AppxDbscan` algorithm (similar to the vanilla DBSCAN algorithm, but which runs a little more quickly), and supply it with a couple of hyperparameters. You may need to play with the <strong><code>tolerance</code></strong> parameter a little bit before getting it right.  
+From there, we can call the `linfa-clustering::AppxDbscan` algorithm (similar to the vanilla DBSCAN algorithm, but which often runs a little more quickly), and supply it with a couple of hyperparameters. You may need to play with the <strong><code>tolerance</code></strong> parameter a little bit before getting it right.  
 
 ```rust 
     // Convert this image into an Array2<f64> array with [x,y,r,g,b] rows
@@ -176,7 +176,7 @@ From there, we can call the `linfa-clustering::AppxDbscan` algorithm (similar to
         .transform(&array.slice(s![.., ..]))?;
 ```
 
-Depending on the hyperparameters, clustering may take anywhere from a few seconds to a few minutes, and scales geometrically with the size of the image. The returned value is a vector of assigned clusters, with a total length equal to the number of rows in the original array. We'll iterate of this list, and depending on the cluster value, write one of several pixel options to the <code>[x, y]</code> position of that pixel. Critically, each time that we get a tarp pixel (assigned the second-largest cluster), we'll add to a running count and color it `RED`. 
+Depending on the hyperparameters, clustering may take anywhere from a few seconds to a few minutes, and should scale geometrically with the size of the image. The returned value is a vector of assigned clusters, with a total length equal to the number of rows in the original array. We'll iterate of this list, and depending on the cluster value, write one of several pixel options to the <code>[x, y]</code> position of that pixel. Critically, each time that we get a tarp pixel (assigned the second-largest cluster), we'll add to a running count and color it `RED`. 
 
 ```rust
     let mut count = 0;
@@ -231,7 +231,7 @@ Using the same hyperparameters with a height of 20 m, 4049 tarp pixels were esti
 
 As a result, I believe that this method demonstrates solid proof-of-concept for performing basic photogrammetry from a low-cost consumer-grade drone like the DJI Mini 2. It also demonstrates the ability of using Rust data science tools to perform data analysis with relatively low overhead.  
 
-<h3 id="FutureWork">Future Work, or <i>"Hey, wait, what was 'fudge factor' from that code snippet above?"</i> </h3>
+<h3 id="NextSteps">Next Steps, or <i>"Hey, wait, what was 'fudge factor' from that code snippet above?"</i> </h3>
 
 Ah, I can't get one by you, ya opalescent tree shark. Yes, in the area estimation code above, there's a variable called **`definitely_not_a_fudge_factor`**, where I multiply the angle of the horizontal lens angle by an additional `0.5`. Based on the numbers we have, this is not in line with a purely first-principles approach. However, I think there's a fair justification for doing this.  
 
