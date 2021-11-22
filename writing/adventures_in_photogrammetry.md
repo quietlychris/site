@@ -55,7 +55,7 @@ The drone sits at an altitude <math>h</math>, where it takes a picture at a cert
 
 <center><math>pixel_area = total_area / (resolution_x * resolution_y)<math></center>
 
-But how much area does our image cover? That depends mainly on two things: the height of the drone, and the lens angle of the camera. The lens angle <math>θ</math> is a built-in property of the drone; we can pull it from the manufacturer specs, where for the Mini2, <math>θ = 83°</math>. From there, we'll use some of that high school trigonometry we were never sure we'd use to solve for the length of the far side of the. Note that in order to form the right triangle, we're actually using <math>θ/2</math>, which only gives us half of the picture's actual width, <math>w/2</math>.
+But how much area does our image cover? That depends mainly on two things: the height of the drone, and the lens angle of the camera. The lens angle <math>θ</math> is a built-in property of the drone; we can pull it from the manufacturer specs, where for the Mini2, <math>θ = 83°</math>. From there, we'll use some of that high school trigonometry we were never sure we'd use to solve for the length of the far side of the triangle. Note that in order to form the right triangle, we're actually using <math>θ/2</math>, which only gives us half of the picture's actual width, <math>w/2</math>.
 
 ```rust 
     fn area_from_pixels(drone_height: f64, 
