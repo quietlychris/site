@@ -3,6 +3,7 @@
 <head>
   <link rel="stylesheet" href="/styles.css">
   <script async defer data-domain="cmoran.xyz" src="https://plausible.io/js/plausible.js"></script>
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
 </head>
 <div class="container">
 <body>
@@ -10,7 +11,7 @@
  <li><a href="/">Home</a></li>
  <li><a href="/writing">Writing</a></li>
  <li><a href="/data">Data</a></li>
- <li><a href="/cmoran.pdf">Resumé</a></li>
+ <li><a href="/cmoran.pdf" onclick="plausible('Resume')" >Resumé</a></li>
  <li><a href="https://github.com/quietlychris">GitHub</a></li>
  <li><a href="/sandbox">Sandbox</a></li>
  </ul>
