@@ -23,11 +23,14 @@ To start, of course, both Zellij and Alacritty need to be installed:
 I like the ["hyper"](https://github.com/rajasegar/alacritty-themes) theme, personally, which can be added to the `~/.config/alacritty/alacritty.yml` configuration file under `colors:`. 
 In addition, we'll want to apply the following to the `.bashrc` file in order to make our shell prompt more colorful. This done through the customization for the PS1 shell variable (Prompt String 1); a more in-depth overview of this feature can be found [here](https://www.linuxnix.com/linuxunix-shell-ps1-prompt-explained-in-detail/), with an explanation of groking this config string [here](https://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html).
 
+In addition, it might be helpful setting the `TERM` variable; I was attempting to SSH into a Raspberry Pi Zero, and found that I kept receiving an error during commands about Alacritty not being recognized; changing this environment variable on the host computer to a simple `=linux` solved this problem (per [this](https://techtitbits.com/2010/10/resolving-unknown-unknown-terminal-type-error/) post);
+
 ```sh
     # Apply to the .bashrc file, can be done through `echo $PS1_CONFIG >> ~/.bashrc`
     # From https://wiki.gentoo.org/wiki/Alacritty#Colorless
     # Sets the hostname colors in Alacritty
     export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+    export TERM=linux
 ```
 
 ### Manual Set-up
