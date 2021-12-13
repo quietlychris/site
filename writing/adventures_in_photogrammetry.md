@@ -1,7 +1,7 @@
 ## Adventures in Drone Photogrammetry Using Rust and Machine Learning
 **Posted 11/14/2021**
 
-***[tl;dr]*** I took a picture of a tarp with a drone. Using basic photogrammetry, I estimated the area of the picture, used machine learning to segment the tarp in the image, and got an tarp area of 3.86 m<sup>2</sup> compared to the actual area of 3.96 m<sup>2</sup> (~4% error). I wrote the whole thing in Rust; the code is on Github [here](https://github.com/quietlychris/tarp_photogrammetry) and data is [here](/data/index.html#drone).
+***[tl;dr]*** I took a picture of a tarp with a drone. Using basic photogrammetry, I estimated the area of the picture, used machine learning to segment the tarp in the image, and got an tarp area of 3.86 m<sup>2</sup> compared to the actual area of 3.96 m<sup>2</sup> (~4% error). I wrote the whole thing in Rust; the code is on Github [here](https://github.com/quietlychris/tarp_photogrammetry) and data is [here](/data#drone).
 
 <ul>
     <div class="tab"><a href="adventures_in_photogrammetry#Flight"/>Flight</a></div>
