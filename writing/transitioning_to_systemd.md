@@ -5,28 +5,28 @@ This website has been one of my first explorations into doing any sort of web pr
 The site uses the [Rocket](https://rocket.rs) web server, which basically requires typing in `$ cargo run --release` into the `site` directory, which will use the specified compilation profile to bind to the given port. For http-only, this is usually Port 80; for https, Port 443. However, Rocket doesn't automatically run in the background, so if you want to exit your SSH session. 
 
 
-I tested this first using a [Odroid-N2+](https://www.hardkernel.com/shop/odroid-n2-with-4gbyte-ram-2/) <sup>[</sup>[^1]<sup>]</sup> that I use as test machine in my homelab. However, as mentioned on my site's [About](/writing/about) page, I host this site using a Digital Ocean droplet, which has a different directory structure from the [Armbian](https://www.armbian.com/) user profile that I'm using on the N2+, where the standard user files are located a `/home/user`. Instead, the Droplet has files (by default) at `/root`. Keep this in mind when switching configuration paths between the test and "production" (everything's relative, right?) environments.
+I tested this first using a [Odroid-N2+](https://www.hardkernel.com/shop/odroid-n2-with-4gbyte-ram-2/)[^1] that I use as test machine in my homelab. However, as mentioned on my site's [About](/writing/about) page, I host this site using a Digital Ocean droplet, which has a different directory structure from the [Armbian](https://www.armbian.com/) user profile that I'm using on the N2+, where the standard user files are located a `/home/user`. Instead, the Droplet has files (by default) at `/root`. Keep this in mind when switching configuration paths between the test and "production" (everything's relative, right?) environments.
 
 The file described the website's executable as a service, with a syntax as described [here](https://www.freedesktop.org/software/systemd/man/systemd.service.html), with a good introductory article to using `systemd` [here](https://www.cloudsavvyit.com/3092/how-to-add-your-own-services-to-systemd-for-easier-management/). 
 
 ```toml
- # A file with this information goes at /etc/systemd/system/site.service
- [Unit]
- Description=Website (cmoran.xyz)
- After=network.target
- StartLimitIntervalSec=1
+  # A file with this information goes at /etc/systemd/system/site.service
+  [Unit]
+  Description=Website (cmoran.xyz)
+  After=network.target
+  StartLimitIntervalSec=1
 
- [Service]
- Type=simple
- Restart=always
- RestartSec=1
- User=root
- WorkingDirectory=/root/site
- # ExecStart requires an absolute path
- ExecStart=/root/site/target/release/site
+  [Service]
+  Type=simple
+  Restart=always
+  RestartSec=1
+  User=root
+  WorkingDirectory=/root/site
+  # ExecStart requires an absolute path
+  ExecStart=/root/site/target/release/site
 
- [Install]
- WantedBy=multi-user.target
+  [Install]
+  WantedBy=multi-user.target
 ```
 From there, we can 
 ```bash
@@ -47,4 +47,4 @@ but most of the important information will also appear if you use the command
 ```
 ---
 
-[^1]: [1] The N2+ a great little machine, but if you're in North America and considering a purchase, I'd suggest using [Ameridroid](https://ameridroid.com/products/odroid-n2-plus?variant=32211327320098) instead of Hardkernel. I at one point purchased an Odroid-C4 directly from Hardkernel which was de
+[^1]: The N2+ a great little machine, but if you're in North America and considering a purchase, I'd suggest using [Ameridroid](https://ameridroid.com/products/odroid-n2-plus?variant=32211327320098) instead of Hardkernel. I at one point purchased an Odroid-C4 directly from Hardkernel which quickly developed some hardware issues. Getting an RMA notice from Hardkernel didn't take too long, but the shipping cost to/from the United States to their factory would have been over twice the cost of buying a new board. On the other hand, I haven't any issues with Ameridroid-purchased boards, but their customer support for things like making small order modifications has been really great, and I've been a pretty happy customer for a number of SBC-related part orders. 
