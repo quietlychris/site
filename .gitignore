@@ -11,3 +11,5 @@ sync.sh
 *.jpg
 *.JPG
 *.pdf
+site_monitor
+nginx*

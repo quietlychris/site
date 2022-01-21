@@ -3,8 +3,8 @@ extern crate rocket;
 use rocket::fs::{FileServer, NamedFile};
 use rocket::response::content;
 
-use comrak::{markdown_to_html_with_plugins, ComrakOptions, ComrakPlugins};
 use comrak::plugins::syntect::SyntectAdapter;
+use comrak::{markdown_to_html_with_plugins, ComrakOptions, ComrakPlugins};
 use std::path::{Path, PathBuf};
 
 // Expands to async main function
@@ -81,9 +81,12 @@ fn styles() -> content::Css<String> {
 fn writing(page: &str) -> content::Html<String> {
     let path = Path::new("writing").join(page).with_extension("md");
     // dbg!(&path);
+
+    // Using Comrak to render markdown, including a number of extensions
     let mut options = ComrakOptions::default();
     options.render.unsafe_ = true;
     options.render.github_pre_lang = true;
+    options.extension.footnotes = true;
 
     let mut plugins = ComrakPlugins::default();
     let adapter = SyntectAdapter::new("base16-mocha.dark");
