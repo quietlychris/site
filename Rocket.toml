@@ -1,15 +1,18 @@
 [global]
-workers = 2
-keep_alive = 5
+keep_alive = 3
 limits = { forms = 32768 }
 logging = "debug"
 
 [debug]
 address = "127.0.0.1"
-port = 8000
+port = 80
 
 # I sure hope having this IP address here doesn't end up biting me in the rear
 [release]
 address = "157.245.179.26"
-port = 80
- 
+port = 443
+
+[default.tls]
+certs = "/etc/letsencrypt/live/cmoran.xyz/fullchain.pem"
+key = "/etc/letsencrypt/live/cmoran.xyz/privkey.pem"
+
