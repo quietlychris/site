@@ -3,20 +3,24 @@ extern crate rocket;
 use rocket::fs::{FileServer, NamedFile};
 use rocket::response::content;
 
+use aho_corasick::AhoCorasick;
+
 use comrak::plugins::syntect::SyntectAdapter;
 use comrak::{markdown_to_html_with_plugins, ComrakOptions, ComrakPlugins};
+use std::fs;
 use std::path::{Path, PathBuf};
+
+mod maplibre;
+use crate::maplibre::*;
 
 // Expands to async main function
 #[rocket::launch]
 fn site() -> _ {
-    // env_logger::init();
-
-    // compile_wasm().expect("There was an error compiling the wasm pages");
-
     rocket::build()
         .mount("/", routes![home, styles, index_pages, resume, writing])
+        .mount("/writing/assets", FileServer::from("writing/assets"))
         .mount("/data", routes![dataset_index_pages, dataset_content])
+        .mount("/geospatial", routes![map, map_template_js, data])
         .mount("/sandbox", FileServer::from("sandbox")) // Experimental, don't care much about formatting
 }
 
@@ -26,11 +30,55 @@ async fn dataset_content(category: PathBuf, payload: PathBuf) -> Option<NamedFil
     NamedFile::open(path).await.ok()
 }
 
+//--------------------------------------------------------------------------------------------------
+#[get("/templates/map.js", rank = 2)]
+async fn map_template_js() -> content::JavaScript<String> {
+    let path = Path::new("geospatial")
+        .join("templates")
+        .join("map")
+        .with_extension("js");
+    let base_text = fs::read_to_string(path).unwrap();
+
+    let patterns = &["[data:feature_collection]", "[data:all_images]"];
+
+    let shift = [0.0001, -0.0001];
+    let data_path = PathBuf::from("geospatial").join("data");
+    let feature_collection = create_feature_collection(&data_path).unwrap();
+    let image_layers = create_image_layers(&data_path).unwrap();
+    let j = serde_json::to_string_pretty(&feature_collection).unwrap();
+
+    let replace_with = &[j, image_layers];
+    let ac = AhoCorasick::new(patterns);
+    let page = ac.replace_all(&base_text, replace_with);
+
+    content::JavaScript(page)
+}
+
+#[get("/templates/map.html", rank = 2)]
+async fn map() -> Option<NamedFile> {
+    let path = Path::new("geospatial")
+        .join("templates")
+        .join("map")
+        .with_extension("html");
+    NamedFile::open(path).await.ok()
+}
+
+#[get("/data/<dataset>/<filename>", rank = 2)]
+async fn data(dataset: PathBuf, filename: PathBuf) -> Option<NamedFile> {
+    let path = Path::new("geospatial")
+        .join("data")
+        .join(dataset)
+        .join(filename);
+    NamedFile::open(path).await.ok()
+}
+
+//-------------------------------------------------------------------------------------------------
+
 #[get("/<category>")]
 async fn dataset_index_pages(category: PathBuf) -> content::Html<String> {
     let mut path = Path::new("data").join(category);
     if path.is_dir() {
-        path.push("index.html");
+        path.join("index").with_extension("html");
     }
     dbg!(&path);
     let content = match std::fs::read_to_string(&path) {
@@ -99,49 +147,18 @@ fn writing(page: &str) -> content::Html<String> {
     format_content(content)
 }
 
-/// Experimental function for compiling the Leaflet WebAssembly map prior to serving the site
-fn compile_wasm() -> Result<(), Box<dyn std::error::Error>> {
-    use std::env;
-    use std::process::Command;
-
-    let wasm = Path::new("./sandbox/wasm/map/");
-    assert!(env::set_current_dir(&wasm).is_ok());
-
-    //println!(
-    //    "Successfully changed working directory to {}!",
-    //    wasm.display()
-    //);
-
-    let compilation = Command::new("wasm-pack")
-        .arg("build")
-        .arg("--target")
-        .arg("web")
-        .output()
-        .expect("failed to execute wasm-pack build process");
-
-    compilation.stdout; //.expect("Failed to compile");
-
-    let home = Path::new("../../..");
-    assert!(env::set_current_dir(&home).is_ok());
-
-    //println!(
-    //   "Successfully changed working directory to {}!",
-    //  home.display()
-    //);
-
-    Ok(())
-}
-
 /// Apply site-wide formatting rules to a raw html page
 fn format_content(content: String) -> content::Html<String> {
-    let prefix = match std::fs::read_to_string("assets/WRITING_PREFIX.html") {
+    let template = match std::fs::read_to_string("assets/page.html") {
         Ok(text) => text,
         Err(e) => format!("Error getting html formatting PREFIX: {:?}", e),
     };
-    let suffix = match std::fs::read_to_string("assets/WRITING_SUFFIX.html") {
-        Ok(text) => text,
-        Err(e) => format!("Error getting html formatting SUFFIX: {:?}", e),
-    };
-    let page = prefix + &content + &suffix;
+
+    let patterns = &["[fn:insert_content]"];
+
+    let replace_with = &[content];
+    let ac = AhoCorasick::new(patterns);
+    let page = ac.replace_all(&template, replace_with);
+
     content::Html(page)
 }

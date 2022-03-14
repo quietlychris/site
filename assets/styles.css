@@ -4,7 +4,8 @@ html {
   border:10px solid maroon;
   border-radius: 20px;
   margin: 1%;
-  min-height: 93.5%;
+  /* margin-bottom: 1%; */
+  min-height: 98%;
   height: auto;
 }
 
@@ -79,6 +80,14 @@ a {
     font-weight: bold;
 }
 
+iframe {
+    width: 90%;
+    min-height: 450px;
+    height: 70%;
+    max-height: 90vh;
+    border: none;
+}
+
 .fig-title {
     color: black;
     font-family: ubuntu;
@@ -89,6 +98,7 @@ a {
 
 .tab {
     padding-left: 10%;
+    font-family: ubuntu;
 }
 
 .tab-1 {
@@ -96,6 +106,9 @@ a {
     padding-bottom: 1%;
 }
 
-
+code {
+    font-size: 110%;
+    font-weight: bold;
+}
 
 img[alt=drawing] { width: 200px; }
