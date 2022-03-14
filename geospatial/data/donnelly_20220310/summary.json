@@ -1,0 +1,14 @@
+{
+  "title": "Donnelly Land Preserve",
+  "description": "Major Donnelly Land Preserve, taken on 3 March 2022, a day after a snowstorm passed through the area.",
+  "bounds": {
+    "min_x": -72.56404,
+    "max_x": -72.56206,
+    "min_y": 41.84073,
+    "max_y": 41.84226
+  },
+  "center": {
+    "lat": 41.84149,
+    "lon": -72.56305
+  }
+}

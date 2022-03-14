@@ -1,0 +1,14 @@
+{
+  "title": "Mashapaug Pond",
+  "description": "Bigelow Hollow State Park on 10 March 2022",
+  "bounds": {
+    "min_x": -72.130806,
+    "max_x": -72.12859,
+    "min_y": 42.009182,
+    "max_y": 42.011017
+  },
+  "center": {
+    "lat": 42.0101,
+    "lon": -72.1297
+  }
+}
