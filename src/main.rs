@@ -1,17 +1,21 @@
 #[macro_use]
 extern crate rocket;
 use rocket::fs::{FileServer, NamedFile};
-use rocket::response::content;
+use rocket::response::{content, status};
+use rocket::Request;
 
 use aho_corasick::AhoCorasick;
 
 use comrak::plugins::syntect::SyntectAdapter;
 use comrak::{markdown_to_html_with_plugins, ComrakOptions, ComrakPlugins};
+use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
 mod maplibre;
 use crate::maplibre::*;
+
+static ERROR_MSG: &'static str = "Yikes 😬 There was an error processing your request for: ";
 
 // Expands to async main function
 #[rocket::launch]
@@ -30,7 +34,6 @@ async fn dataset_content(category: PathBuf, payload: PathBuf) -> Option<NamedFil
     NamedFile::open(path).await.ok()
 }
 
-//--------------------------------------------------------------------------------------------------
 #[get("/templates/map.js", rank = 2)]
 async fn map_template_js() -> content::JavaScript<String> {
     let path = Path::new("geospatial")
@@ -54,7 +57,7 @@ async fn map_template_js() -> content::JavaScript<String> {
     content::JavaScript(page)
 }
 
-#[get("/templates/map.html", rank = 2)]
+#[get("/", rank = 0)]
 async fn map() -> Option<NamedFile> {
     let path = Path::new("geospatial")
         .join("templates")
@@ -71,8 +74,6 @@ async fn data(dataset: PathBuf, filename: PathBuf) -> Option<NamedFile> {
         .join(filename);
     NamedFile::open(path).await.ok()
 }
-
-//-------------------------------------------------------------------------------------------------
 
 #[get("/<category>")]
 async fn dataset_index_pages(category: PathBuf) -> content::Html<String> {
@@ -98,12 +99,12 @@ fn home() -> content::Html<String> {
     format_content(content)
 }
 
-#[get("/<index_page>")]
+#[get("/<index_page>", rank = 1)]
 fn index_pages(index_page: &str) -> content::Html<String> {
     let path = Path::new(index_page).join("index.html");
     let content = match std::fs::read_to_string(&path) {
         Ok(text) => text,
-        Err(e) => format!("Error: {:?} for {:?}", e, &path),
+        Err(e) => format!("<p>{} {:?}</p>", ERROR_MSG, &path),
     };
     format_content(content)
 }
