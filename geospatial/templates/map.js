@@ -67,7 +67,7 @@ map.on("load", function () {
   map.on("click", "places", function (e) {
     map.flyTo({
       center: e.features[0].geometry.coordinates,
-      zoom: 16,
+      zoom: 14.5,
     });
   });
 });
