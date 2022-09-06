@@ -107,7 +107,7 @@ iframe {
 }
 
 .code-block {
-    overflow: scroll;
+    overflow-x: scroll;
 }
 
 code {
