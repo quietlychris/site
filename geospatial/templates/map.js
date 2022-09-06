@@ -2,7 +2,7 @@ var map = new maplibregl.Map({
   container: "map",
   style:
     "https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
-  maxZoom: 19,
+  maxZoom: 21,
   minZoom: 2,
   zoom: 2.5,
   center: [-98.579533, 39.828527], // Historical geographic center of the United States

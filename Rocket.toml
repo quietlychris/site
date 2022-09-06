@@ -9,10 +9,11 @@ port = 8000
 
 # I sure hope having this IP address here doesn't end up biting me in the rear
 [release]
-address = "157.245.179.26"
-port = 443
+#address = "157.245.179.26"
+address = "127.0.0.1"
+port = 8080
 
-[default.tls]
-certs = "/etc/letsencrypt/live/cmoran.xyz/fullchain.pem"
-key = "/etc/letsencrypt/live/cmoran.xyz/privkey.pem"
+#[default.tls]
+#certs = "/etc/letsencrypt/live/cmoran.xyz/fullchain.pem"
+#key = "/etc/letsencrypt/live/cmoran.xyz/privkey.pem"
 
