@@ -40,6 +40,10 @@ In addition, it might be helpful setting the `TERM` variable; I was attempting t
 
 
 ### Manual Set-up
+
+<div class="code-block">
+<pre style="width: 125%">
+
 ```sh
     > GNOME Keyboard Settings
         > "Customize Shortcuts"
@@ -48,10 +52,16 @@ In addition, it might be helpful setting the `TERM` variable; I was attempting t
                     - `alacritty -e zellij`
                     - Set keybinding to terminal launch (i.e. `Ctrl+Alt+T`)    
 ```
+</pre>
+</div>
 
 ### Automatic Set-up
 
 In order to set Alacritty as the default terminal, we'll do the following: 
+
+<div class="code-block">
+<pre style="width: 110%;">
+
 ```sh
     # https://gist.github.com/aanari/08ca93d84e57faad275c7f74a23975e6
     # Remember to add the PS1 config to .bashrc for the pretty colors
@@ -61,6 +71,9 @@ In order to set Alacritty as the default terminal, we'll do the following:
       $(which alacritty) 50
     $ sudo update-alternatives --config x-terminal-emulator
 ```
+</pre>
+</div>
+
 and add to the `~/.config/alacritty/alacritty.yml` file, based on this Github [issue](https://github.com/zellij-org/zellij/issues/823):
 
 ```yaml

@@ -171,7 +171,7 @@ Once the image is resized, we'll want to convert it into a form that can be easi
 From there, we can call the `linfa-clustering::Dbscan` algorithm, and supply it with a couple of hyperparameters. You may need to play with the <strong><code>tolerance</code></strong> parameter a little bit before getting it right.  
 
 <div class="code-block">
-<pre style="width: 110%">
+<pre style="width: 125%">
 
 ```rust 
     // Convert this image into an Array2<f64> array with [x,y,r,g,b] rows
