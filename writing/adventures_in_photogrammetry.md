@@ -57,6 +57,8 @@ The drone sits at an altitude <math>h</math>, where it takes a picture at a cert
 
 But how much area does our image cover? That depends mainly on two things: the height of the drone, and the lens angle of the camera. The lens angle <math>θ</math> is a built-in property of the drone; we can pull it from the manufacturer specs, where for the Mini2, <math>θ = 83°</math>. From there, we'll use some of that high school trigonometry we were never sure we'd use to solve for the length of the far side of the triangle. Note that in order to form the right triangle, we're actually using <math>θ/2</math>, which only gives us half of the picture's actual width, <math>w/2</math>. We also need to assume that our image is actually of a flat area; this method wouldn't work properly on a picture contains objects of many different heights. 
 
+<div class="code-block" style="width: 150%">
+
 ```rust 
     fn area_from_pixels(drone_height: f64, 
                         tarp_pixels: usize, 
@@ -88,6 +90,7 @@ But how much area does our image cover? That depends mainly on two things: the h
         est_tarp_area
     }
 ```
+</div>
 
 <!--Photogrammetry section -->
 <h3 id="HowNotTo">How (Not To) Segment An Image</h3>
@@ -107,6 +110,9 @@ We could also use something like a color filter. Each pixel in the image is repr
 
 For example, we know that the tarp is silver, while the rest of the field is green. As a result, the ratio of Green to Blue should be much higher on the grass than the tarp, allowing us to create a function like
 
+<div class="code-block">
+<pre style="width: 110%">
+
 ```rust
   /// Decide if a pixel is grey based on green/blue ratio
   #[inline]
@@ -119,6 +125,9 @@ For example, we know that the tarp is silver, while the rest of the field is gre
       }
   }
 ```
+</div>
+</pre>
+
 The problem with simple color filters is that they tend not to end up being so simple. A single rule rarely takes care of everything, so you start adding conditionals, which are then based on things like lighting or location, so you add more conditionals, but then some rules conflict with others so you add more conditionals to resolve those, and so on forever until you give up and go live in a monastery for a while to contemplate the infinite possibilities created by the universe's fickle nature. Ahem. 
 
 Anyway, while this might work for a one-off, it's an approach that rarely ends up being more flexible than just coloring in the image yourself and going from there. 
@@ -136,6 +145,9 @@ It just happens this is sort of the sweet spot where a clustering algorithm migh
 
 The first thing we'll do is open the image file with the [`image`](https://docs.rs/image/) library, then resize the image. Resizing isn't necessary, but is often practical in order to reduce iteration time. I'd recommend trying a <math>0.2</math> scaling factor to start. 
 
+<div class="code-block">
+<pre style="width: 110%">
+
 ```rust 
     let img = image::open(path)?; 
     let (w, h) = img.dimensions(); // (u32, u32)
@@ -149,9 +161,15 @@ The first thing we'll do is open the image file with the [`image`](https://docs.
         FilterType::Triangle, // Different filters have different effects
     );
 ```
+</pre>
+</div>
+
 Once the image is resized, we'll want to convert it into a form that can be easily processed by [`linfa`](https://github.com/rust-ml/linfa), a Rust machine learning library akin to scikit-learn. In this case, we'll flatten it out, where each pixel is a new row in the form `[x, y, r, g, b]`, to create an `ndarray::Array2<f64>` <math>(w*h) x 5</math> array. 
 
 From there, we can call the `linfa-clustering::Dbscan` algorithm, and supply it with a couple of hyperparameters. You may need to play with the <strong><code>tolerance</code></strong> parameter a little bit before getting it right.  
+
+<div class="code-block">
+<pre style="width: 110%">
 
 ```rust 
     // Convert this image into an Array2<f64> array with [x,y,r,g,b] rows
@@ -175,8 +193,14 @@ From there, we can call the `linfa-clustering::Dbscan` algorithm, and supply it 
         .tolerance(tolerance) // Tolerance param is supplied in fn args
         .transform(&array.slice(s![.., ..]))?;
 ```
+</pre>
+</div>
+
 
 Depending on the hyperparameters, clustering may take anywhere from a few seconds to a few minutes, and should scale geometrically with the size of the image. The returned value is a vector of assigned clusters, with a total length equal to the number of rows in the original array. We'll iterate of this list, and depending on the cluster value, write one of several pixel options to the <code>[x, y]</code> position of that pixel. Critically, each time that we get a tarp pixel (assigned the second-largest cluster), we'll add to a running count and color it `RED`. 
+
+<div class="code-block">
+<pre style="width: 110%">
 
 ```rust
     let mut count = 0;
@@ -209,6 +233,9 @@ Depending on the hyperparameters, clustering may take anywhere from a few second
     }
 ```
 
+</pre>
+</div>
+
 <!--Results -->
 <h3 id="Results">Results</h3>
 
@@ -235,12 +262,18 @@ As a result, I believe that this method demonstrates solid proof-of-concept for 
 
 Ah, I can't get one by you, ya opalescent tree shark. Yes, in the area estimation code above, there's a variable called **`definitely_not_a_fudge_factor`**, where I multiplied the angle of the horizontal lens angle by an additional `0.5`. Based on the numbers we have, this is not in line with a purely first-principles approach. However, I think there's a fair justification for doing this.  
 
+<div class="code-block">
+<pre style="width: 110%">
+
 ```rust
     // ↓ (this thing)
     let definitely_not_a_fudge_factor = 0.5;
     let lens_angle_v: f64 = 
         (definitely_not_a_fudge_factor * 83f64).to_radians() / 2.0;
 ```
+</pre>
+</div>
+
 First, I should say that I'm mostly doing this because It Seems To Work™. Second, cameras that are involved in photogrammetry tend to have more than a single number reported for their field-of-view angles, where the horizontal and vertical angles have different values. Take a look at the specs of a StereoLabs [ZED camera](https://www.stereolabs.com/zed/), for instance. This isn't the case in the Mini 2's documentation; it only has a single value of 83°. Especially considering that the resulting images don't have a 1:1 aspect ratio at any resolution (it's actually a 16:9 ratio), I suspect there's some missing information here. In general, it would be ideal to experimentally determine the actual effective field of views, as well as correct for image distortion common to cameras like this one. 
 
 We could also have used a simple ratio for this correction factor; a ratio of 9/16 is technically 0.5625. However, when I was testing this, no matter how I measured the size of the tarp (in GIMP, using various DBSCAN hyperparams, etc.), I was consistently getting too high an area (closer to 8-10% error over actual rather than 2-4%). Since I'm missing this information anyway, I unscientifically dropped that ratio to 2:1 instead. Considering the lack of precision in altitude data (maybe the measurement is slightly biased?) I don't consider this particularly egregious, but it is something worth calling out and keeping an eye on in the future data. Having a control area in place would be a prudent check on this in future datasets. 

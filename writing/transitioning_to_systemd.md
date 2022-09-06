@@ -9,6 +9,9 @@ I tested this first using a [Odroid-N2+](https://www.hardkernel.com/shop/odroid-
 
 The file described the website's executable as a service, with a syntax as described [here](https://www.freedesktop.org/software/systemd/man/systemd.service.html), with a good introductory article to using `systemd` [here](https://www.cloudsavvyit.com/3092/how-to-add-your-own-services-to-systemd-for-easier-management/). 
 
+<div class="code-block">
+<pre style="width: 120%">
+
 ```toml
   # A file with this information goes at /etc/systemd/system/site.service
   [Unit]
@@ -28,6 +31,9 @@ The file described the website's executable as a service, with a syntax as descr
   [Install]
   WantedBy=multi-user.target
 ```
+</pre>
+</div>
+
 From there, we can 
 ```bash
  # Reload the systemd service configuration files
