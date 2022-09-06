@@ -25,6 +25,9 @@ In addition, we'll want to apply the following to the `.bashrc` file in order to
 
 In addition, it might be helpful setting the `TERM` variable; I was attempting to SSH into a Raspberry Pi Zero, and found that I kept receiving an error during commands about Alacritty not being recognized; changing this environment variable on the host computer to a simple `=linux` solved this problem (per [this](https://techtitbits.com/2010/10/resolving-unknown-unknown-terminal-type-error/) post);
 
+<div class="code-block">
+<pre style="width: 120%">
+
 ```sh
     # Apply to the .bashrc file, can be done through `echo $PS1_CONFIG >> ~/.bashrc`
     # From https://wiki.gentoo.org/wiki/Alacritty#Colorless
@@ -32,6 +35,9 @@ In addition, it might be helpful setting the `TERM` variable; I was attempting t
     export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
     export TERM=linux
 ```
+</pre>
+</div>
+
 
 ### Manual Set-up
 ```sh
