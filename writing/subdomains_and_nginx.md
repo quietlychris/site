@@ -10,7 +10,8 @@ Now, there should a textbox available directly underneath that (and above the ex
 Afterwards, I tried accessing that subdomain, but came across a warning from my browser that the TLS certificate that was issued for the site had been issued for `cmoran.xyz` but *not* `www.cmoran.xyz`. As a result, the next thing I needed to do was add this. After searching around the docs for a bit, I came across the right command. 
 
 ```sh
-  $ certbot install --cert-name www.cmoran.xyz
+  $ certbot install --cert-name cmoran.xyz
+  $ certbot -d cmoran.xyz,www.cmoran.xyz
 ```
 
 However, upon first doing this, I was receiving an error that said 
@@ -21,9 +22,11 @@ However, upon first doing this, I was receiving an error that said
 
 It turns out, when I started the `www.cmoran.xyz` was simply not present, and since Certbot was checking the `nginx` config to make sure that I was trying to fetch a valid certificate, I needed to add that sub-domain first. After making the change, my Nginx configuration file (as of 5 Sept 2022) looks something like this (again, I hope that this isn't going to lead to me getting pwned, but hey). 
 
+<div class="code-block">
+<pre style="width: 130%;">
 
 ```
-    server {
+  server {
         server_name cmoran.xyz https://cmoran.xyz www.cmoran.xyz https://www.cmoran.xyz;
 
             location / {
@@ -31,15 +34,15 @@ It turns out, when I started the `www.cmoran.xyz` was simply not present, and si
             }
 
         listen 443 ssl; # managed by Certbot
-        listen 80;
-
-        ssl_certificate /etc/letsencrypt/live/www.cmoran.xyz/fullchain.pem; # managed by Certbot
-        ssl_certificate_key /etc/letsencrypt/live/www.cmoran.xyz/privkey.pem; # managed by Certbot
+        ssl_certificate /etc/letsencrypt/live/cmoran.xyz/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /etc/letsencrypt/live/cmoran.xyz/privkey.pem; # managed by Certbot
         include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
         ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-    }
-```
 
+  }
+```
+</pre>
+</div>
 
 Upon changing this and re-running the `certbot` command, I received a valid certificate, which I was able to check using the command below, and then restarted the `nginx` service to make sure that everything stuck. 
 
