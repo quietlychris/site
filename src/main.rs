@@ -5,8 +5,10 @@ use rocket::response::content;
 
 use aho_corasick::AhoCorasick;
 
+use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::plugins::syntect::SyntectAdapter;
 use comrak::{markdown_to_html_with_plugins, ComrakOptions, ComrakPlugins};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
