@@ -119,7 +119,7 @@ pub fn create_image_layers(path: &PathBuf) -> Result<String, Box<dyn Error>> {
     Ok(image_layers)
 }
 
-fn get_dataset_info(
+pub fn get_dataset_info(
     path: impl Into<PathBuf>,
 ) -> Result<(Vec<PathBuf>, Vec<Summary>), Box<dyn Error>> {
     let path = path.into();
@@ -151,4 +151,20 @@ fn get_dataset_info(
     }
 
     Ok((datasets, summaries))
+}
+
+pub fn list_toggles() -> String {
+    let paths = fs::read_dir("./geospatial/data/").unwrap();
+
+    let mut names = "".to_string();
+    for path in paths {
+        let file = path.unwrap().path().file_name().unwrap().to_str().unwrap().to_owned();
+        if file.contains("donnelly") {
+            println!("Name: {}", file);
+            names = format!("{}\"{}\",",names,file);
+        }
+    }
+    names = format!("[{}]",names);
+    println!("{}",names);
+    names
 }

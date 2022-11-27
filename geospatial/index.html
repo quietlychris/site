@@ -12,8 +12,19 @@
       href="https://unpkg.com/maplibre-gl@2.1.7/dist/maplibre-gl.css"
       rel="stylesheet"
     />
-    <script async defer data-domain="cmoran.xyz" src="https://plausible.io/js/plausible.js"></script>
-    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    <script
+      async
+      defer
+      data-domain="cmoran.xyz"
+      src="https://plausible.io/js/plausible.js"
+    ></script>
+    <script>
+      window.plausible =
+        window.plausible ||
+        function () {
+          (window.plausible.q = window.plausible.q || []).push(arguments);
+        };
+    </script>
     <style>
       body {
         margin: 0;
@@ -29,6 +40,6 @@
   </head>
   <body>
     <div id="map"></div>
-    <script src ="/geospatial/map.js"></script>
+    <script src="/geospatial/map.js"></script>
   </body>
 </html>

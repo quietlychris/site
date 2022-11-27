@@ -42,15 +42,17 @@ async fn map_template_js() -> content::RawJavaScript<String> {
         .with_extension("js");
     let base_text = fs::read_to_string(path).unwrap();
 
-    let patterns = &["[data:feature_collection]", "[data:all_images]"];
+    let patterns = &["[data:feature_collection]", "[data:all_images]", "[setting:toggles]"];
 
-    let shift = [0.0001, -0.0001];
     let data_path = PathBuf::from("geospatial").join("data");
     let feature_collection = create_feature_collection(&data_path).unwrap();
     let image_layers = create_image_layers(&data_path).unwrap();
+
+    let toggles = maplibre::list_toggles();
+
     let j = serde_json::to_string_pretty(&feature_collection).unwrap();
 
-    let replace_with = &[j, image_layers];
+    let replace_with = &[j, image_layers,toggles];
     let ac = AhoCorasick::new(patterns);
     let page = ac.replace_all(&base_text, replace_with);
 
