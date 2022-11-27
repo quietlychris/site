@@ -156,15 +156,30 @@ pub fn get_dataset_info(
 pub fn list_toggles() -> String {
     let paths = fs::read_dir("./geospatial/data/").unwrap();
 
-    let mut names = "".to_string();
+    let mut names = Vec::new();
     for path in paths {
-        let file = path.unwrap().path().file_name().unwrap().to_str().unwrap().to_owned();
+        let file = path
+            .unwrap()
+            .path()
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_owned();
+        names.push(file);
+    }
+
+    names.sort();
+    let mut name_string = "".to_string();
+
+    for file in names {
         if file.contains("donnelly") {
             println!("Name: {}", file);
-            names = format!("{}\"{}\",",names,file);
+            name_string = format!("{}\"{}\",", name_string, file);
         }
     }
-    names = format!("[{}]",names);
-    println!("{}",names);
-    names
+
+    name_string = format!("[{}]", name_string);
+    println!("{}", name_string);
+    name_string
 }

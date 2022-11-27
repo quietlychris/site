@@ -42,7 +42,11 @@ async fn map_template_js() -> content::RawJavaScript<String> {
         .with_extension("js");
     let base_text = fs::read_to_string(path).unwrap();
 
-    let patterns = &["[data:feature_collection]", "[data:all_images]", "[setting:toggles]"];
+    let patterns = &[
+        "[data:feature_collection]",
+        "[data:all_images]",
+        "[setting:toggles]",
+    ];
 
     let data_path = PathBuf::from("geospatial").join("data");
     let feature_collection = create_feature_collection(&data_path).unwrap();
@@ -52,7 +56,7 @@ async fn map_template_js() -> content::RawJavaScript<String> {
 
     let j = serde_json::to_string_pretty(&feature_collection).unwrap();
 
-    let replace_with = &[j, image_layers,toggles];
+    let replace_with = &[j, image_layers, toggles];
     let ac = AhoCorasick::new(patterns);
     let page = ac.replace_all(&base_text, replace_with);
 
