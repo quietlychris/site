@@ -1,0 +1,17 @@
+# A file with this information goes at /etc/systemd/system/martin.service
+[Unit]
+Description=Martin Tileserver
+After=network.target
+StartLimitIntervalSec=1
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/root/site/geospatial/martin
+# ExecStart requires an absolute path
+ExecStart=/.cargo/bin/martin --config config.yaml
+
+[Install]
+WantedBy=multi-user.target
