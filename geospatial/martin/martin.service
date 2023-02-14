@@ -11,7 +11,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/root/site/geospatial/martin
 # ExecStart requires an absolute path
-ExecStart=/.cargo/bin/martin --config config.yaml
+ExecStart=/root/.cargo/bin/martin --config config.yaml
 
 [Install]
 WantedBy=multi-user.target
