@@ -1,5 +1,5 @@
 ## Subdomains, Certs, and Nginx
-### 5 Sept. 2022
+### 13 Feb. 2023
 
 I've been thinking about adding subdomains to my site for a while, but I've also been a little intimidated by the whole thing. There's a bunch of language around this kind of system-administration-type stuff that can be a little confusing, and even though I don't have too many visitors (shout-out to the two or three people a week who stop by to check out my little guide on switching over to a combined [Zellij and Alacritty set-up](/writing/switching_to_alacritty) up and running), I try not to break things too much. To that end, I recently noticed while working on a new computer that upon visiting my site, the `www.` subdomain led to nowhere. Now, maybe someday I'll want more subdomains, but this was particularly important because it's such a common way to type in a site name, so it took top spot priority-wise. 
 
@@ -53,3 +53,28 @@ Upon changing this and re-running the `certbot` command, I received a valid cert
 ```
 
 And now I('m pretty sure I) have a `www.` subdomain, and hopefully a better understanding of how to move forward if I'm interested in creating more in the future 🎉 
+
+
+--- 
+
+### Update 
+
+To add a completely separate subdomain, for example a tileserver, add the following block underneath the initial `server` block
+
+<div class="code-block">
+<pre style="width: 130%;">
+
+``` 
+  server {
+      server_name tiles.cmoran.xyz https://tiles.cmoran.xyz;
+
+          location / {
+                  proxy_pass http://localhost:3001;
+          }
+
+  }
+
+```
+</pre>
+</div>
+

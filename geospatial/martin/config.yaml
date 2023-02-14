@@ -1,0 +1,7 @@
+# The socket address to bind [default: 0.0.0.0:3000]
+listen_addresses: '127.0.0.1:3001'
+
+# Publish MBTiles files
+mbtiles:
+  paths:
+    - /root/site/geospatial/martin/data/mbtiles/
