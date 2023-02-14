@@ -1,0 +1,67 @@
+<!-- 
+$ npm install prettier
+$ npx prettier -w map.html
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Add a raster tile source</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      var map = new maplibregl.Map({
+        container: "map", // container id
+        style: {
+          version: 8,
+          sources: {
+            "raster-tiles": {
+              type: "raster",
+              tiles: [
+                "https://tiles.cmoran.xyz/2022-03-10/{z}/{x}/{y}",
+              ],
+              tileSize: 256,
+              attribution:
+                'Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a> \n Data tiles by Christopher Moran, CC-BY-SA-NC',
+            },
+          },
+          layers: [
+            {
+              id: "simple-tiles",
+              type: "raster",
+              source: "raster-tiles",
+              minzoom: 17,
+              maxzoom: 22,
+            },
+          ],
+        },
+        center: [-72.563355, 41.841122], // starting position
+        zoom: 17, // starting zoom
+        maxzoom: 21
+      });
+
+    </script>
+  </body>
+</html>
