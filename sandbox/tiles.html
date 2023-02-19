@@ -27,41 +27,123 @@ $ npx prettier -w map.html
         bottom: 0;
         width: 100%;
       }
+      #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 150px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        font-family: "Open Sans", sans-serif;
+      }
+
+      #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+        text-align: center;
+      }
+
+      #menu a:last-child {
+        border: none;
+      }
+
+      #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+      }
+
+      #menu a.active {
+        background-color: #3887be;
+        color: #ffffff;
+      }
+
+      #menu a.active:hover {
+        background: #3074a4;
+      }
     </style>
   </head>
   <body>
+    <nav id="menu"></nav>
     <div id="map"></div>
     <script>
       var map = new maplibregl.Map({
-        container: "map", // container id
-        style: {
-          version: 8,
-          sources: {
-            "raster-tiles": {
-              type: "raster",
-              tiles: [
-                "https://tiles.cmoran.xyz/2022-03-10/{z}/{x}/{y}",
-              ],
-              tileSize: 256,
-              attribution:
-                'Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a> \n Data tiles by Christopher Moran, CC-BY-SA-NC',
-            },
-          },
-          layers: [
-            {
-              id: "simple-tiles",
-              type: "raster",
-              source: "raster-tiles",
-              minzoom: 17,
-              maxzoom: 22,
-            },
-          ],
-        },
-        center: [-72.563355, 41.841122], // starting position
-        zoom: 17, // starting zoom
-        maxzoom: 21
+        container: "map",
+        style:
+          "https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+        maxZoom: 23,
+        minZoom: 18,
+        zoom: 17,
+        center: [-72.563355, 41.841122], // Donnelly
       });
 
+      map.on("load", function () {
+        map.addSource("raster-tiles", {
+          type: "raster",
+          tiles: ["https://tiles.cmoran.xyz/2022-03-10/{z}/{x}/{y}"],
+          tileSize: 256,
+          attribution:
+            'Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a> \n Data tiles by Christopher Moran, CC-BY-SA-NC',
+        });
+        // Add a layer showing the places.
+        map.addLayer({
+          id: "simple-tiles",
+          type: "raster",
+          source: "raster-tiles",
+          minZoom: 17,
+          maxZoom: 22,
+        });
+      });
+
+      map.on("idle", () => {
+        const toggleableLayerIds = ["simple-tiles"];
+
+        // Set up the corresponding toggle button for each layer.
+        for (const id of toggleableLayerIds) {
+          // Skip layers that already have a button set up.
+          if (document.getElementById(id)) {
+            continue;
+          }
+
+          // Create a link.
+          const link = document.createElement("a");
+          link.id = id;
+          link.href = "#";
+          link.textContent = id;
+          link.className = "active";
+
+          // Show or hide layer when the toggle is clicked.
+          link.onclick = function (e) {
+            const clickedLayer = this.textContent;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const visibility = map.getLayoutProperty(
+              clickedLayer,
+              "visibility"
+            );
+
+            // Toggle layer visibility by changing the layout object's visibility property.
+            if (visibility === "visible") {
+              map.setLayoutProperty(clickedLayer, "visibility", "none");
+              this.className = "";
+            } else {
+              this.className = "active";
+              map.setLayoutProperty(clickedLayer, "visibility", "visible");
+            }
+          };
+
+          const layers = document.getElementById("menu");
+          layers.appendChild(link);
+        }
+      });
     </script>
   </body>
 </html>

@@ -5,7 +5,7 @@ logging = "debug"
 
 [debug]
 address = "127.0.0.1"
-port = 8000
+port = 8080
 
 # I sure hope having this IP address here doesn't end up biting me in the rear
 [release]
