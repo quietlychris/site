@@ -31,12 +31,12 @@ $ npx prettier -w map.html
         background: #fff;
         position: absolute;
         z-index: 1;
-        top: 10px;
+        top: 40px;
         right: 10px;
         border-radius: 3px;
         width: 150px;
         border: 1px solid rgba(0, 0, 0, 0.4);
-        font-family: "Open Sans", sans-serif;
+        font-family: "Ubuntu", sans-serif;
       }
 
       #menu a {
@@ -68,9 +68,22 @@ $ npx prettier -w map.html
       #menu a.active:hover {
         background: #3074a4;
       }
+
+      #toggle {
+        background: #3887be;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 150px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        font-family: "Ubuntu", sans-serif;
+      }
     </style>
   </head>
   <body>
+    <button onclick="showMenu()" id="toggle">Menu</button>
     <nav id="menu"></nav>
     <div id="map"></div>
     <script>
@@ -155,6 +168,15 @@ $ npx prettier -w map.html
           layers.appendChild(link);
         }
       });
+
+      function showMenu() {
+        var x = document.getElementById("menu");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+      }
     </script>
   </body>
 </html>
