@@ -79,44 +79,56 @@ $ npx prettier -w map.html
         style:
           "https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
         maxZoom: 23,
-        minZoom: 18,
+        minZoom: 5,
         zoom: 17,
         center: [-72.563355, 41.841122], // Donnelly
       });
 
+      const list_mbtiles = [
+        "Arroyo-Quemado-2021-08-13",
+        "2021-08-27",
+        "2022-02-24",
+        "2022-03-07",
+        "2022-03-10",
+        "2022-11-24",
+        "2022-12-29",
+      ];
+      var layers = document.getElementById("menu");
+
       map.on("load", function () {
-        map.addSource("raster-tiles", {
-          type: "raster",
-          tiles: ["https://tiles.cmoran.xyz/2022-03-10/{z}/{x}/{y}"],
-          tileSize: 256,
-          attribution:
-            'Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a> \n Data tiles by Christopher Moran, CC-BY-SA-NC',
-        });
-        // Add a layer showing the places.
-        map.addLayer({
-          id: "simple-tiles",
-          type: "raster",
-          source: "raster-tiles",
-          minZoom: 17,
-          maxZoom: 22,
-        });
-      });
+        for (var mbtiles of list_mbtiles) {
+          map.addSource(mbtiles, {
+            type: "raster",
+            tiles: [
+              "https://tiles.cmoran.xyz/"
+                .concat(mbtiles)
+                .concat("/{z}/{x}/{y}"),
+            ],
+            tileSize: 256,
+            attribution:
+              'Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>;\n Overlays by Christopher Moran, CC-BY-SA-NC',
+          });
+          // Add a layer showing the places.
+          map.addLayer({
+            id: mbtiles,
+            type: "raster",
+            source: mbtiles,
+            minZoom: 17,
+            maxZoom: 22,
+          });
+          map.setLayoutProperty(mbtiles, "visibility", "none");
 
-      map.on("idle", () => {
-        const toggleableLayerIds = ["simple-tiles"];
-
-        // Set up the corresponding toggle button for each layer.
-        for (const id of toggleableLayerIds) {
+          // Set up buttons on the menu for toggling layer visbility
           // Skip layers that already have a button set up.
-          if (document.getElementById(id)) {
+          if (document.getElementById(mbtiles)) {
             continue;
           }
 
           // Create a link.
           const link = document.createElement("a");
-          link.id = id;
+          link.id = mbtiles;
           link.href = "#";
-          link.textContent = id;
+          link.textContent = mbtiles;
           link.className = "active";
 
           // Show or hide layer when the toggle is clicked.
@@ -140,7 +152,6 @@ $ npx prettier -w map.html
             }
           };
 
-          const layers = document.getElementById("menu");
           layers.appendChild(link);
         }
       });
