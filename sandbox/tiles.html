@@ -142,7 +142,7 @@ $ npx prettier -w map.html
           link.id = mbtiles;
           link.href = "#";
           link.textContent = mbtiles;
-          link.className = "active";
+          // link.className = "active"; // If the maps are shown by default, this should be uncommented
 
           // Show or hide layer when the toggle is clicked.
           link.onclick = function (e) {
