@@ -6,7 +6,7 @@ $ npx prettier -w map.html
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Add a raster tile source</title>
+    <title>CMoran Geospatial</title>
     <meta
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
@@ -90,12 +90,19 @@ $ npx prettier -w map.html
       var map = new maplibregl.Map({
         container: "map",
         style:
-          "https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+          "https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
         maxZoom: 23,
         minZoom: 5,
         zoom: 17,
         center: [-72.563355, 41.841122], // Donnelly
       });
+
+      function Get(myUrl) {
+        var Httpreq = new XMLHttpRequest(); // a new request
+        Httpreq.open("GET", myUrl, false);
+        Httpreq.send(null);
+        return Httpreq.responseText;
+      }
 
       const list_mbtiles = [
         "Arroyo-Quemado-2021-08-13",
@@ -131,11 +138,15 @@ $ npx prettier -w map.html
           });
           map.setLayoutProperty(mbtiles, "visibility", "none");
 
-          // Set up buttons on the menu for toggling layer visbility
+          // Set up buttons on the menu for toggling layer visibility
           // Skip layers that already have a button set up.
           if (document.getElementById(mbtiles)) {
             continue;
           }
+
+          //-------------
+
+          //---------------
 
           // Create a link.
           const link = document.createElement("a");
@@ -155,6 +166,17 @@ $ npx prettier -w map.html
               "visibility"
             );
 
+            var bounds = JSON.parse(
+              Get("https://tiles.cmoran.xyz/".concat(this.textContent))
+            ).bounds;
+            var center = [
+              (bounds[0] + bounds[2]) / 2.0,
+              (bounds[1] + bounds[3]) / 2.0,
+            ];
+            //alert("Bounds for".concat(mbtiles).concat(" ").concat(bounds).concat("with center ").concat(center))
+            //alert("Is ".concat(center).concat("within").concat(map.getBounds()).concat("? ").concat(center_in_view));
+            var center_in_view = map.getBounds().contains(center);
+
             // Toggle layer visibility by changing the layout object's visibility property.
             if (visibility === "visible") {
               map.setLayoutProperty(clickedLayer, "visibility", "none");
@@ -162,6 +184,18 @@ $ npx prettier -w map.html
             } else {
               this.className = "active";
               map.setLayoutProperty(clickedLayer, "visibility", "visible");
+              if (!map.getBounds().contains(center)) {
+                map.flyTo({
+                  center: [-98.579533, 39.828527],
+                  zoom: 3,
+                  essential: false, // this animation is considered essential with respect to prefers-reduced-motion
+                });
+                map.flyTo({
+                  center: center,
+                  zoom: 18,
+                  essential: false, // this animation is considered essential with respect to prefers-reduced-motion
+                });
+              }
             }
           };
 
