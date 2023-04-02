@@ -1,15 +1,19 @@
+<!-- 
+$ npm install prettier
+$ npx prettier -w map.html
+-->
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Geospatial Map</title>
+    <title>CMoran Geospatial</title>
     <meta
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <script src="https://unpkg.com/maplibre-gl@2.1.7/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
     <link
-      href="https://unpkg.com/maplibre-gl@2.1.7/dist/maplibre-gl.css"
+      href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css"
       rel="stylesheet"
     />
     <style>
@@ -23,20 +27,16 @@
         bottom: 0;
         width: 100%;
       }
-    </style>
-  </head>
-  <body>
-    <style>
       #menu {
         background: #fff;
         position: absolute;
         z-index: 1;
-        top: 10px;
+        top: 40px;
         right: 10px;
         border-radius: 3px;
         width: 150px;
         border: 1px solid rgba(0, 0, 0, 0.4);
-        font-family: "Open Sans", sans-serif;
+        font-family: "Ubuntu", sans-serif;
       }
 
       #menu a {
@@ -68,10 +68,150 @@
       #menu a.active:hover {
         background: #3074a4;
       }
-    </style>
 
+      #toggle {
+        background: #3887be;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 150px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        font-family: "Ubuntu", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="showMenu()" id="toggle">Menu</button>
     <nav id="menu"></nav>
     <div id="map"></div>
-    <script src ="/geospatial/templates/map.js"></script>
+    <script>
+      var map = new maplibregl.Map({
+        container: "map",
+        style:
+          "https://api.maptiler.com/maps/hybrid/style.json?key=JTTsg0SWYOhKgc5lOQqF",
+        maxZoom: 23,
+        minZoom: 5,
+        zoom: 17,
+        center: [-72.563355, 41.841122], // Donnelly
+      });
+
+      function Get(myUrl) {
+        var Httpreq = new XMLHttpRequest(); // a new request
+        Httpreq.open("GET", myUrl, false);
+        Httpreq.send(null);
+        return Httpreq.responseText;
+      }
+
+      const list_mbtiles = [
+        "Arroyo-Quemado-2021-08-13",
+        "Arroyo-Quemado-2021-08-27",
+        "Bigelow-Hollow-2022-02-24",
+        "Weir-River-2022-03-20",
+        "Donnelly-2022-03-07",
+        "Donnelly-2022-03-10",
+        "Donnelly-2022-11-24",
+        "Donnelly-2022-12-29",
+      ];
+      var layers = document.getElementById("menu");
+
+      map.on("load", function () {
+        for (var mbtiles of list_mbtiles) {
+          map.addSource(mbtiles, {
+            type: "raster",
+            tiles: [
+              "https://tiles.cmoran.xyz/"
+                .concat(mbtiles)
+                .concat("/{z}/{x}/{y}"),
+            ],
+            tileSize: 256,
+            attribution:
+              'Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>;\n Overlays by Christopher Moran, CC-BY-SA-NC',
+          });
+          // Add a layer showing the places.
+          map.addLayer({
+            id: mbtiles,
+            type: "raster",
+            source: mbtiles,
+            minZoom: 17,
+            maxZoom: 22,
+          });
+          map.setLayoutProperty(mbtiles, "visibility", "none");
+
+          // Set up buttons on the menu for toggling layer visibility
+          // Skip layers that already have a button set up.
+          if (document.getElementById(mbtiles)) {
+            continue;
+          }
+
+          //-------------
+
+          //---------------
+
+          // Create a link.
+          const link = document.createElement("a");
+          link.id = mbtiles;
+          link.href = "#";
+          link.textContent = mbtiles;
+          // link.className = "active"; // If the maps are shown by default, this should be uncommented
+
+          // Show or hide layer when the toggle is clicked.
+          link.onclick = function (e) {
+            const clickedLayer = this.textContent;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const visibility = map.getLayoutProperty(
+              clickedLayer,
+              "visibility"
+            );
+
+            var bounds = JSON.parse(
+              Get("https://tiles.cmoran.xyz/".concat(this.textContent))
+            ).bounds;
+            var center = [
+              (bounds[0] + bounds[2]) / 2.0,
+              (bounds[1] + bounds[3]) / 2.0,
+            ];
+            //alert("Bounds for".concat(mbtiles).concat(" ").concat(bounds).concat("with center ").concat(center))
+            //alert("Is ".concat(center).concat("within").concat(map.getBounds()).concat("? ").concat(center_in_view));
+            var center_in_view = map.getBounds().contains(center);
+
+            // Toggle layer visibility by changing the layout object's visibility property.
+            if (visibility === "visible") {
+              map.setLayoutProperty(clickedLayer, "visibility", "none");
+              this.className = "";
+            } else {
+              this.className = "active";
+              map.setLayoutProperty(clickedLayer, "visibility", "visible");
+              if (!map.getBounds().contains(center)) {
+                map.flyTo({
+                  center: [-98.579533, 39.828527],
+                  zoom: 3,
+                  essential: false, // this animation is considered essential with respect to prefers-reduced-motion
+                });
+                map.flyTo({
+                  center: center,
+                  zoom: 18,
+                  essential: false, // this animation is considered essential with respect to prefers-reduced-motion
+                });
+              }
+            }
+          };
+
+          layers.appendChild(link);
+        }
+      });
+
+      function showMenu() {
+        var x = document.getElementById("menu");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+      }
+    </script>
   </body>
 </html>
