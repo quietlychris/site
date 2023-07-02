@@ -12,8 +12,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-mod maplibre;
-use crate::maplibre::*;
+// mod maplibre;
+// use crate::maplibre::*;
 
 static ERROR_MSG: &'static str = "Yikes 😬 There was an error processing your request for: ";
 
@@ -24,7 +24,7 @@ fn site() -> _ {
         .mount("/", routes![home, styles, index_pages, resume, writing])
         .mount("/writing/assets", FileServer::from("writing/assets"))
         .mount("/data", routes![dataset_index_pages, dataset_content])
-        .mount("/geospatial", routes![map, map_template_js, data])
+        .mount("/geospatial", routes![map, data])
         .mount("/sandbox", FileServer::from("sandbox")) // Experimental, don't care much about formatting
 }
 
@@ -34,41 +34,15 @@ async fn dataset_content(category: PathBuf, payload: PathBuf) -> Option<NamedFil
     NamedFile::open(path).await.ok()
 }
 
-#[get("/templates/map.js", rank = 2)]
-async fn map_template_js() -> content::RawJavaScript<String> {
-    let path = Path::new("geospatial")
-        .join("templates")
-        .join("map")
-        .with_extension("js");
-    let base_text = fs::read_to_string(path).unwrap();
-
-    let patterns = &[
-        "[data:feature_collection]",
-        "[data:all_images]",
-        "[setting:toggles]",
-    ];
-
-    let data_path = PathBuf::from("geospatial").join("data");
-    let feature_collection = create_feature_collection(&data_path).unwrap();
-    let image_layers = create_image_layers(&data_path).unwrap();
-
-    let toggles = maplibre::list_toggles();
-
-    let j = serde_json::to_string_pretty(&feature_collection).unwrap();
-
-    let replace_with = &[j, image_layers, toggles];
-    let ac = AhoCorasick::new(patterns);
-    let page = ac.replace_all(&base_text, replace_with);
-
-    content::RawJavaScript(page)
-}
-
 #[get("/", rank = 0)]
 async fn map() -> Option<NamedFile> {
+    
     let path = Path::new("geospatial")
-        .join("templates")
-        .join("map")
+        .join("index")
+        // .join("map")
         .with_extension("html");
+    
+    //let path = Path::new("index").with_extension("html");
     NamedFile::open(path).await.ok()
 }
 
