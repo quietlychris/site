@@ -7,7 +7,7 @@ use aho_corasick::AhoCorasick;
 
 use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::plugins::syntect::SyntectAdapter;
-use comrak::{markdown_to_html_with_plugins, ComrakOptions, ComrakPlugins};
+use comrak::{markdown_to_html_with_plugins, options::{Options, Plugins}};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -112,14 +112,14 @@ fn writing(page: &str) -> content::RawHtml<String> {
     // dbg!(&path);
 
     // Using Comrak to render markdown, including a number of extensions
-    let mut options = ComrakOptions::default();
-    options.render.unsafe_ = true;
+    let mut options = Options::default();
+    options.render.r#unsafe = true;
     options.render.github_pre_lang = true;
     options.render.hardbreaks = true;
     options.extension.footnotes = true;
 
-    let mut plugins = ComrakPlugins::default();
-    let adapter = SyntectAdapter::new("base16-mocha.dark");
+    let mut plugins = Plugins::default();
+    let adapter = SyntectAdapter::new(Some("base16-mocha.dark"));
     plugins.render.codefence_syntax_highlighter = Some(&adapter);
 
     let content = match std::fs::read_to_string(&path) {
